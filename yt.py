@@ -1,20 +1,18 @@
+import yt_dlp
+import ytmusicapi
+
 import consts
-from ytmusicapi import YTMusic, OAuthCredentials
-import os
 
 
-def get_ytmusicapi() -> YTMusic:
-    client_id = os.environ.get(consts.YT_CLIENT_ID_VAR)
-    if client_id is None:
-        raise Exception(f"{consts.YT_CLIENT_ID_VAR} env variable is not present")
+def get_ytmusicapi() -> ytmusicapi.YTMusic:
+    return ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
 
-    client_secret = os.environ.get(consts.YT_CLIENT_SECRET_VAR)
-    if client_secret is None:
-        raise Exception(f"{consts.YT_CLIENT_SECRET_VAR} env variable is not present")
 
-    return YTMusic(
-        "browser.json",
-        oauth_credentials=OAuthCredentials(
-            client_id=client_id, client_secret=client_secret
-        ),
+def get_yt_dlp(out_path: str) -> yt_dlp.YoutubeDL:
+    return yt_dlp.YoutubeDL(
+        {
+            "extract_audio": True,
+            "format": "bestaudio",
+            "outtmpl": out_path,
+        }
     )

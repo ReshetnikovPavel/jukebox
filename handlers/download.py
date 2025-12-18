@@ -3,7 +3,6 @@ from track import into_track
 import logging
 from telegram.ext import ContextTypes
 from telegram import Update
-import yt_dlp
 import tempfile
 import os
 
@@ -25,13 +24,8 @@ async def download_handler(
 
     with tempfile.TemporaryDirectory() as tmp_dir:
         out_path = os.path.join(tmp_dir, f"{video_id}.mp3")
-        opts = {
-            "extract_audio": True,
-            "format": "bestaudio",
-            "outtmpl": out_path,
-        }
-        with yt_dlp.YoutubeDL(opts) as video:
-            video.download(link)
+        with yt.get_yt_dlp(out_path) as ytdl:
+            ytdl.download(link)
 
         await context.bot.send_audio(
             chat.id, out_path, title=track.title, performer=", ".join(track.artists)
