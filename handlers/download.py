@@ -1,5 +1,4 @@
 import yt
-from track import into_track
 import logging
 from telegram.ext import ContextTypes
 from telegram import Update
@@ -18,15 +17,18 @@ async def download_handler(
     video_id = callback_data.split()[1]
 
     ytmusic = yt.get_ytmusicapi()
-    track = into_track(ytmusic.search(video_id, filter="songs", limit=1)[0])
+    song = ytmusic.get_song(video_id)
+
+    title = song["videoDetails"]["title"]
+    author = song["videoDetails"]["author"]
+    author = author.replace(" &", ",")
 
     link = f"https://www.youtube.com/watch?v={video_id}"
-
     with tempfile.TemporaryDirectory() as tmp_dir:
         out_path = os.path.join(tmp_dir, f"{video_id}.mp3")
         with yt.get_yt_dlp(out_path) as ytdl:
             ytdl.download(link)
 
         await context.bot.send_audio(
-            chat.id, out_path, title=track.title, performer=", ".join(track.artists)
+            chat.id, out_path, title=title, performer=author
         )
