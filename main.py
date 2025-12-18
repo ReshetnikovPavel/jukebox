@@ -1,3 +1,4 @@
+import consts
 import logging
 import os
 
@@ -18,9 +19,9 @@ logging.basicConfig(
 
 if __name__ == "__main__":
     dotenv.load_dotenv()
-    token = os.environ.get("TG_TOKEN")
+    token = os.environ.get(consts.TG_TOKEN_VAR)
     if token is None:
-        raise Exception("TG_TOKEN env variable is not present")
+        raise Exception(f"{consts.TG_TOKEN_VAR} env variable is not present")
 
     application = ApplicationBuilder().token(token).build()
     application.add_handler(CommandHandler("start", handlers.start_handler))

@@ -1,9 +1,9 @@
+import yt
 from track import Track, into_track
-import callbacks
+import consts
 import logging
 from telegram.ext import ContextTypes
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-import ytmusicapi
 
 
 async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -21,17 +21,17 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [
             InlineKeyboardButton(
                 f"{','.join(t.artists)} - {t.title}",
-                callback_data=f"{callbacks.SEARCH} {t.video_id}",
+                callback_data=f"{consts.SEARCH_CALLBACK} {t.video_id}",
             )
         ]
         for t in tracks
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await update.message.reply_text("Выберите трек", reply_markup=reply_markup)
+    await message.reply_text("Выберите трек", reply_markup=reply_markup)
 
 
 def search(query: str) -> list[Track]:
-    ytmusic = ytmusicapi.YTMusic()
+    ytmusic = yt.get_ytmusicapi()
     results = ytmusic.search(query, filter="songs", limit=10)
     return [into_track(r) for r in results]

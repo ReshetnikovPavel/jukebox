@@ -1,4 +1,4 @@
-import callbacks
+import consts
 import logging
 import handlers
 from telegram.ext import ContextTypes
@@ -16,7 +16,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.error("data is not present in the callback_query {}", update)
         return
 
-    if callback_data.startswith(callbacks.SEARCH):
+    if callback_data.startswith(consts.SEARCH_CALLBACK):
         await handlers.download_handler(update, context, callback_data)
     else:
         logging.error("Unknown callback_data {}", callback_data)

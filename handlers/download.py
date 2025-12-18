@@ -1,5 +1,5 @@
+import yt
 from track import into_track
-import ytmusicapi
 import logging
 from telegram.ext import ContextTypes
 from telegram import Update
@@ -18,7 +18,7 @@ async def download_handler(
 
     video_id = callback_data.split()[1]
 
-    ytmusic = ytmusicapi.YTMusic()
+    ytmusic = yt.get_ytmusicapi()
     track = into_track(ytmusic.search(video_id, filter="songs", limit=1)[0])
 
     link = f"https://www.youtube.com/watch?v={video_id}"
