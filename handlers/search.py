@@ -20,7 +20,7 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [
             InlineKeyboardButton(
-                f"{','.join(t.artists)} - {t.title}",
+                f"{', '.join(t.artists)} – {t.title}",
                 callback_data=f"{consts.SEARCH_CALLBACK} {t.video_id}",
             )
         ]

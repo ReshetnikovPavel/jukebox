@@ -34,5 +34,5 @@ async def download_handler(
             video.download(link)
 
         await context.bot.send_audio(
-            chat.id, out_path, title=track.title, performer=",".join(track.artists)
+            chat.id, out_path, title=track.title, performer=", ".join(track.artists)
         )
