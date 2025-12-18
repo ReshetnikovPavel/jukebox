@@ -1,9 +1,11 @@
+import logging
+
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import ContextTypes
+
+import consts
 import yt
 from track import Track, into_track
-import consts
-import logging
-from telegram.ext import ContextTypes
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 
 
 async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):

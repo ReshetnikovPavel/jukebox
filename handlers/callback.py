@@ -1,8 +1,10 @@
-import consts
 import logging
-import handlers
-from telegram.ext import ContextTypes
+
 from telegram import Update
+from telegram.ext import ContextTypes
+
+import consts
+import handlers
 
 
 async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):

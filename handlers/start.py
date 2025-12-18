@@ -1,6 +1,7 @@
 import logging
-from telegram.ext import ContextTypes
+
 from telegram import Update
+from telegram.ext import ContextTypes
 
 
 async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -11,7 +12,3 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = "Привет! Я Jukebox - бот для поиска музыки! Напиши сообщение, а я найду по нему список треков"
     await context.bot.send_message(chat_id=chat.id, text=text)
-
-
-
-

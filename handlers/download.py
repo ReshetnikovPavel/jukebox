@@ -1,9 +1,11 @@
-import yt
 import logging
-from telegram.ext import ContextTypes
-from telegram import Update
-import tempfile
 import os
+import tempfile
+
+from telegram import Update
+from telegram.ext import ContextTypes
+
+import yt
 
 
 async def download_handler(
@@ -29,6 +31,4 @@ async def download_handler(
         with yt.get_yt_dlp(out_path) as ytdl:
             ytdl.download(link)
 
-        await context.bot.send_audio(
-            chat.id, out_path, title=title, performer=author
-        )
+        await context.bot.send_audio(chat.id, out_path, title=title, performer=author)
