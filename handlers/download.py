@@ -46,5 +46,5 @@ async def download_handler(
                 logging.error("yt_dlp download failed: {}", e)
                 return
 
-        await download_message.delete()
         await context.bot.send_audio(chat.id, out_path, title=title, performer=author)
+        await download_message.delete()
