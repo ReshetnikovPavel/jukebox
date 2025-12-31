@@ -11,4 +11,4 @@ async def start_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     text = "Привет! Я Jukebox - бот для поиска музыки! Напиши сообщение, а я найду по нему список треков"
-    await context.bot.send_message(chat_id=chat.id, text=text)
+    await context.bot.send_message(chat.id, text)

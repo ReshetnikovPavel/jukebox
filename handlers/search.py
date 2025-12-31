@@ -19,8 +19,18 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.error("text is not present in the message {}", message)
         return
 
-    ytmusic = yt.get_ytmusicapi()
-    results = await asyncio.to_thread(ytmusic.search, text, filter="songs", limit=10)
+    try:
+        ytmusic = yt.get_ytmusicapi()
+        results = await asyncio.to_thread(
+            ytmusic.search, text, filter="songs", limit=10
+        )
+    except Exception as e:
+        await message.reply_text(
+            "Почему-то не вышло получить список треков, простите 😭"
+        )
+        logging.error("YouTube music search failed: {}", e)
+        return
+
     tracks = [into_track(r) for r in results]
 
     keyboard = [
