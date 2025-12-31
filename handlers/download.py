@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 import tempfile
@@ -19,7 +20,7 @@ async def download_handler(
     video_id = callback_data.split()[1]
 
     ytmusic = yt.get_ytmusicapi()
-    song = ytmusic.get_song(video_id)
+    song = await asyncio.to_thread(ytmusic.get_song, video_id)
 
     title = song["videoDetails"]["title"]
     author = song["videoDetails"]["author"]
@@ -29,6 +30,6 @@ async def download_handler(
     with tempfile.TemporaryDirectory() as tmp_dir:
         out_path = os.path.join(tmp_dir, f"{video_id}.mp3")
         with yt.get_yt_dlp(out_path) as ytdl:
-            ytdl.download(link)
+            await asyncio.to_thread(ytdl.download, link)
 
         await context.bot.send_audio(chat.id, out_path, title=title, performer=author)

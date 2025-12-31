@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -5,7 +6,7 @@ from telegram.ext import ContextTypes
 
 import consts
 import yt
-from track import Track, into_track
+from track import into_track
 
 
 async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -18,7 +19,10 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.error("text is not present in the message {}", message)
         return
 
-    tracks = search(text)
+    ytmusic = yt.get_ytmusicapi()
+    results = await asyncio.to_thread(ytmusic.search, text, filter="songs", limit=10)
+    tracks = [into_track(r) for r in results]
+
     keyboard = [
         [
             InlineKeyboardButton(
@@ -31,9 +35,3 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await message.reply_text("Выберите трек", reply_markup=reply_markup)
-
-
-def search(query: str) -> list[Track]:
-    ytmusic = yt.get_ytmusicapi()
-    results = ytmusic.search(query, filter="songs", limit=10)
-    return [into_track(r) for r in results]

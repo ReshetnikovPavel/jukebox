@@ -24,7 +24,7 @@ if __name__ == "__main__":
     if token is None:
         raise Exception(f"{consts.TG_TOKEN_VAR} env variable is not present")
 
-    application = ApplicationBuilder().token(token).build()
+    application = ApplicationBuilder().token(token).concurrent_updates(True).build()
     application.add_handler(CommandHandler("start", handlers.start_handler))
     application.add_handler(CallbackQueryHandler(handlers.callback_handler))
     application.add_handler(
