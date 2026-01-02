@@ -53,6 +53,8 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 return
 
         artists, title = artists_title_str.split(consts.SEP, maxsplit=1)
+        artists = artists.strip()
+        title = title.strip()
         await context.bot.send_audio(chat.id, out_path, title=title, performer=artists)
         await download_message.delete()
 
