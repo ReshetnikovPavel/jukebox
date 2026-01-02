@@ -20,9 +20,9 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await callback_query.answer()
 
-    command, data = callback_data.split()
+    command = callback_data.split()[0]
     if command == consts.SEARCH_CALLBACK:
-        await handlers.download_handler(update, context, data)
+        await handlers.download_handler(update, context)
     else:
         logging.error("Unknown callback_data {}", callback_data)
         return
