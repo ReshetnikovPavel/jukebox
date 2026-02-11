@@ -1,3 +1,4 @@
+import yt_dlp
 import asyncio
 import logging
 import os
@@ -7,11 +8,9 @@ from telegram import CallbackQuery, Message, Update
 from telegram.ext import ContextTypes
 
 import consts
-import yt
 
 
 async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    print(update)
     chat = update.effective_chat
     if chat is None:
         logging.error("effective_chat is not present in the update {}", update)
@@ -42,7 +41,12 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     link = f"https://www.youtube.com/watch?v={video_id}"
     with tempfile.TemporaryDirectory() as tmp_dir:
         out_path = os.path.join(tmp_dir, f"{artists_title_str}.mp3")
-        with yt.get_yt_dlp(out_path) as ytdl:
+        opts = {
+            "extract_audio": True,
+            "format": "bestaudio",
+            "outtmpl": out_path,
+        }
+        with yt_dlp.YoutubeDL(opts) as ytdl:
             try:
                 await asyncio.to_thread(ytdl.download, link)
             except Exception as e:

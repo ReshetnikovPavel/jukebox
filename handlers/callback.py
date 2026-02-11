@@ -4,7 +4,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 import consts
-import handlers
+from handlers import selector
 
 
 async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -22,7 +22,7 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     command = callback_data.split()[0]
     if command == consts.SEARCH_CALLBACK:
-        await handlers.download_handler(update, context)
+        await selector.download_handler(update, context)
     else:
         logging.error("Unknown callback_data {}", callback_data)
         return

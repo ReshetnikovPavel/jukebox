@@ -28,6 +28,6 @@ if __name__ == "__main__":
     application.add_handler(CommandHandler("start", handlers.start_handler))
     application.add_handler(CallbackQueryHandler(handlers.callback_handler))
     application.add_handler(
-        MessageHandler(filters.TEXT & (~filters.COMMAND), handlers.search_handler)
+        MessageHandler(filters.TEXT & (~filters.COMMAND), handlers.message_handler)
     )
     application.run_polling()

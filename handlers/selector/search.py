@@ -1,3 +1,4 @@
+import ytmusicapi
 import asyncio
 import logging
 
@@ -5,7 +6,6 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 import consts
-import yt
 from track import into_track
 
 
@@ -20,7 +20,7 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     try:
-        ytmusic = yt.get_ytmusicapi()
+        ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
         results = await asyncio.to_thread(
             ytmusic.search, text, filter="songs", limit=10
         )
