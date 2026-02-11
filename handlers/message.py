@@ -19,4 +19,4 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if validators.url(text):
         await url.download_handler(update, context)
     else:
-        selector.search_handler(update, context)
+        await selector.search_handler(update, context)
