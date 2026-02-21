@@ -1,6 +1,5 @@
 import ytmusicapi
 import asyncio
-import logging
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
@@ -11,26 +10,13 @@ from track import into_track
 
 async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     message = update.message
-    if message is None:
-        logging.error("message is not present in the update {}", update)
-        return
+    assert message is not None
+
     text = message.text
-    if text is None:
-        logging.error("text is not present in the message {}", message)
-        return
+    assert text is not None
 
-    try:
-        ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
-        results = await asyncio.to_thread(
-            ytmusic.search, text, filter="songs", limit=10
-        )
-    except Exception as e:
-        await message.reply_text(
-            "Почему-то не вышло получить список треков, простите 😭"
-        )
-        logging.error("YouTube music search failed: {}", e)
-        return
-
+    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    results = await asyncio.to_thread(ytmusic.search, text, filter="songs", limit=10)
     tracks = [into_track(r) for r in results]
 
     keyboard = [

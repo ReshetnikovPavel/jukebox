@@ -1,7 +1,6 @@
 import json
 import yt_dlp
 import asyncio
-import logging
 import os
 import tempfile
 
@@ -12,21 +11,14 @@ from telegram.ext import ContextTypes
 
 async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
-    if chat is None:
-        logging.error("effective_chat is not present in the update {}", update)
-        return
-    message = update.message
-    if message is None:
-        logging.error("message is not present in the update", update)
-        return
-    link = message.text
-    if link is None:
-        logging.error("text is not present in the message", message)
-        return
+    assert chat is not None
 
-    if not validators.url(link):
-        logging.error("A link must be a valid url", link)
-        return
+    message = update.message
+    assert message is not None
+
+    link = message.text
+    assert link is not None
+    assert validators.url(link)
 
     download_message = await context.bot.send_message(chat.id, "Скачиваю аудио из видео")
 
@@ -40,15 +32,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "outtmpl": out_path,
         }
         with yt_dlp.YoutubeDL(opts) as ytdl:
-            try:
-                await asyncio.to_thread(ytdl.download, link)
-            except Exception as e:
-                await context.bot.send_message(
-                    chat.id,
-                    "Почему-то не получилось загрузить аудио, простите 😭",
-                )
-                logging.error("yt_dlp download failed", e)
-                return
+            await asyncio.to_thread(ytdl.download, link)
 
         with open(out_path + ".info.json") as metadata_file:
             metadata = json.load(metadata_file)
