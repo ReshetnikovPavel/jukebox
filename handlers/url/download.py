@@ -1,12 +1,14 @@
-import json
-import yt_dlp
 import asyncio
+import json
 import os
 import tempfile
 
 import validators
+import yt_dlp
 from telegram import Update
 from telegram.ext import ContextTypes
+
+import utils
 
 
 async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -30,6 +32,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "noplaylist": True,
             "format": "bestaudio",
             "outtmpl": out_path,
+            **utils.default_yt_dlp_opts()
         }
         with yt_dlp.YoutubeDL(opts) as ytdl:
             await asyncio.to_thread(ytdl.download, link)

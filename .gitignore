@@ -9,6 +9,7 @@ wheels/
 .env
 oauth.json
 browser.json
+cookies-youtube-com.txt
 
 # Virtual environments
 .venv

@@ -1,12 +1,13 @@
-import yt_dlp
 import asyncio
 import os
 import tempfile
 
+import yt_dlp
 from telegram import CallbackQuery, Message, Update
 from telegram.ext import ContextTypes
 
 import consts
+import utils
 
 
 async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -34,6 +35,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "extract_audio": True,
             "format": "bestaudio",
             "outtmpl": out_path,
+            **utils.default_yt_dlp_opts()
         }
         with yt_dlp.YoutubeDL(opts) as ytdl:
             await asyncio.to_thread(ytdl.download, link)
