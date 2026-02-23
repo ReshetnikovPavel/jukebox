@@ -29,22 +29,31 @@ async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
         ytmusic.get_watch_playlist, video_id, limit=1
     )
 
+    track = typing.cast(list[dict[str, Any]], watch_playlist["tracks"])[0]
+    artists = [str(artist["name"]) for artist in track["artists"]]
+    artists = ", ".join(artists)
+    title = str(track["title"])
+    artists_title_str = f"{artists} {consts.SEP} {title}"
+
     lyrics_id = watch_playlist["lyrics"]
     if lyrics_id is None:
-        await context.bot.send_message(chat.id, "У этого трека нет слов в источнике 😭")
+        await context.bot.send_message(
+            chat.id,
+            f"У <b>{artists_title_str}</b> нет слов в источнике 😭",
+            parse_mode=ParseMode.HTML,
+        )
         return
     assert isinstance(lyrics_id, str)
 
     lyrics = await asyncio.to_thread(ytmusic.get_lyrics, lyrics_id, timestamps=False)
     if lyrics is None:
-        await context.bot.send_message(chat.id, "У этого трека нет слов в источнике 😭")
+        await context.bot.send_message(
+            chat.id,
+            f"У <b>{artists_title_str}</b> нет слов в источнике 😭",
+            parse_mode=ParseMode.HTML,
+        )
         return
     lyrics = typing.cast(Lyrics, lyrics)["lyrics"]
 
-    track = typing.cast(list[dict[str, Any]], watch_playlist["tracks"])[0]
-    title = str(track["title"])
-    artists = [str(artist["name"]) for artist in track["artists"]]
-    artists = ", ".join(artists)
-
-    text = f"<b>{artists} {consts.SEP} {title}</b>\n\n{lyrics}"
+    text = f"<b>{artists_title_str}</b>\n\n{lyrics}"
     await utils.send_long_message(context.bot, chat.id, text, parse_mode=ParseMode.HTML)
