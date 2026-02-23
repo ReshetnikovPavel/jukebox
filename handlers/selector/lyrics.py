@@ -7,6 +7,7 @@ from telegram.ext import ContextTypes
 from ytmusicapi.models import Lyrics
 
 import consts
+import utils
 
 
 async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -35,4 +36,4 @@ async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
     lyrics = typing.cast(Lyrics, lyrics)["lyrics"]
 
-    await context.bot.send_message(chat.id, lyrics)
+    await utils.send_long_message(context.bot, chat.id, lyrics)

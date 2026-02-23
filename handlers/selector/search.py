@@ -1,6 +1,6 @@
-import ytmusicapi
 import asyncio
 
+import ytmusicapi
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
@@ -18,6 +18,13 @@ async def search_handler(
 
     text = message.text
     assert text is not None
+    if text.startswith("/"):
+        splits = text.split(maxsplit=1)
+        text = "" if len(splits) == 1 else splits[1]
+
+    if text == "" or text.isspace():
+        await message.reply_text("Кажется, что вы забыли написать, что нужно найти 😭")
+        return
 
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     results = await asyncio.to_thread(ytmusic.search, text, filter="songs", limit=10)
