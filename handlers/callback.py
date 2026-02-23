@@ -15,7 +15,10 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await callback_query.answer()
 
     command = callback_data.split()[0]
-    if command == consts.SEARCH_CALLBACK:
-        await selector.download_handler(update, context)
-    else:
-        raise Exception("Unknown callback_data", callback_data)
+    match command:
+        case consts.SEARCH_CALLBACK:
+            await selector.download_handler(update, context)
+        case consts.SEARCH_CALLBACK_LYRICS:
+            await selector.get_lyrics_handler(update, context)
+        case _:
+            raise Exception("Unknown callback_data", callback_data)
