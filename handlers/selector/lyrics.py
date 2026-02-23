@@ -1,10 +1,11 @@
-from telegram.constants import ParseMode
-from typing import Any
 import asyncio
+import html
 import typing
+from typing import Any
 
 import ytmusicapi
 from telegram import Update
+from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 from ytmusicapi.models import Lyrics
 
@@ -39,7 +40,7 @@ async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if lyrics_id is None:
         await context.bot.send_message(
             chat.id,
-            f"У <b>{artists_title_str}</b> нет слов в источнике 😭",
+            f"У <b>{html.escape(artists_title_str)}</b> нет слов в источнике 😭",
             parse_mode=ParseMode.HTML,
         )
         return
@@ -49,11 +50,11 @@ async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
     if lyrics is None:
         await context.bot.send_message(
             chat.id,
-            f"У <b>{artists_title_str}</b> нет слов в источнике 😭",
+            f"У <b>{html.escape(artists_title_str)}</b> нет слов в источнике 😭",
             parse_mode=ParseMode.HTML,
         )
         return
     lyrics = typing.cast(Lyrics, lyrics)["lyrics"]
 
-    text = f"<b>{artists_title_str}</b>\n\n{lyrics}"
+    text = f"<b>{html.escape(artists_title_str)}</b>\n\n{html.escape(lyrics)}"
     await utils.send_long_message(context.bot, chat.id, text, parse_mode=ParseMode.HTML)
