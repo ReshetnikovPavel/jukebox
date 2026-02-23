@@ -1,3 +1,5 @@
+from telegram.constants import ParseMode
+from typing import Any
 import asyncio
 import typing
 
@@ -23,7 +25,10 @@ async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
     video_id = callback_data.split(maxsplit=1)[1]
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
 
-    watch_playlist = await asyncio.to_thread(ytmusic.get_watch_playlist, video_id, limit=1)
+    watch_playlist = await asyncio.to_thread(
+        ytmusic.get_watch_playlist, video_id, limit=1
+    )
+
     lyrics_id = watch_playlist["lyrics"]
     if lyrics_id is None:
         await context.bot.sendMessage(chat.id, "У этого трека нет слов в источнике 😭")
@@ -36,4 +41,10 @@ async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
     lyrics = typing.cast(Lyrics, lyrics)["lyrics"]
 
-    await utils.send_long_message(context.bot, chat.id, lyrics)
+    track = typing.cast(list[dict[str, Any]], watch_playlist["tracks"])[0]
+    title = str(track["title"])
+    artists = [str(artist["name"]) for artist in track["artists"]]
+    artists = ", ".join(artists)
+
+    text = f"<b>{artists} {consts.SEP} {title}</b>\n\n{lyrics}"
+    await utils.send_long_message(context.bot, chat.id, text, parse_mode=ParseMode.HTML)
