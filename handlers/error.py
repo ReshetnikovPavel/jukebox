@@ -4,12 +4,11 @@ import logging
 import os
 import traceback
 
-from telegram import Chat, Update
+from telegram import Update, Chat
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 
 import consts
-import utils
 
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
@@ -19,21 +18,24 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     tb_list = traceback.format_exception(
         None, context.error, context.error.__traceback__
     )
-    tb_string = "".join(tb_list)
+    tb_string = "".join(tb_list)[:500]
 
     update_str = update.to_dict() if isinstance(update, Update) else str(update)
     message = (
         "An exception was raised while handling an update\n"
-        f"<pre>update = {html.escape(json.dumps(update_str, indent=2, ensure_ascii=False))}"
+        f"<pre>update = {html.escape(json.dumps(update_str, indent=2, ensure_ascii=False)[:500])}"
         "</pre>\n\n"
-        f"<pre>context.chat_data = {html.escape(str(context.chat_data))}</pre>\n\n"
-        f"<pre>context.user_data = {html.escape(str(context.user_data))}</pre>\n\n"
-        f"<pre>{html.escape(tb_string)}</pre>"
+        f"<pre>context.chat_data = {html.escape(str(context.chat_data)[:500])}</pre>\n\n"
+        f"<pre>context.user_data = {html.escape(str(context.user_data)[:500])}</pre>\n\n"
+        f"<pre>{html.escape(tb_string[:500])}</pre>"
     )
 
+    if len(message) > 4096:
+        message = "An exception was raised while handling an update but the message is too long"
+
     if developer_chat_id := os.environ.get(consts.DEVELOPER_CHAT_ID_VAR):
-        await utils.send_long_message(
-            context.bot, developer_chat_id, message, parse_mode=ParseMode.HTML
+        await context.bot.send_message(
+            chat_id=developer_chat_id, text=message, parse_mode=ParseMode.HTML
         )
     else:
         logging.error(
