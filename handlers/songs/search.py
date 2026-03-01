@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 import asyncio
 
 import ytmusicapi
@@ -5,7 +6,6 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 import consts
-from track import into_track
 
 
 async def search_handler(
@@ -28,7 +28,7 @@ async def search_handler(
 
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     results = await asyncio.to_thread(ytmusic.search, text, filter="songs", limit=10)
-    tracks = [into_track(r) for r in results]
+    songs = [into_song(r) for r in results]
 
     keyboard = [
         [
@@ -37,7 +37,7 @@ async def search_handler(
                 callback_data=f"{callback_const} {t.video_id}",
             )
         ]
-        for t in tracks
+        for t in songs
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -48,3 +48,17 @@ async def search_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TY
     return await search_handler(
         update, context, callback_const=consts.SEARCH_CALLBACK_LYRICS
     )
+
+
+@dataclass()
+class Song:
+    title: str
+    artists: list[str]
+    video_id: str
+
+
+def into_song(data: dict) -> Song:
+    title = data["title"]
+    artists = [artist["name"] for artist in data["artists"]]
+    video_id = data["videoId"]
+    return Song(title, artists, video_id)
