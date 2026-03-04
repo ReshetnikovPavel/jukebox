@@ -25,9 +25,10 @@ async def search_handler(
         await message.reply_text("Кажется, что вы забыли написать, что нужно найти 😭")
         return
 
+    limit = 10
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
-    results = await asyncio.to_thread(ytmusic.search, text, filter="songs", limit=10)
-    songs = [into_song(r) for r in results]
+    results = await asyncio.to_thread(ytmusic.search, text, filter="songs", limit=limit)
+    songs = [into_song(r) for r in results[:limit]]
 
     keyboard = [
         [
