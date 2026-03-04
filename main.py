@@ -28,11 +28,17 @@ if __name__ == "__main__":
 
     application = ApplicationBuilder().token(token).concurrent_updates(True).build()
     application.add_error_handler(handlers.error_handler)
-    application.add_handler(CommandHandler("start", handlers.start_handler))
-    application.add_handler(CommandHandler("lyrics", handlers.songs.search_lyrics_handler))
-    application.add_handler(CommandHandler("video", handlers.video.search_handler))
     application.add_handler(CallbackQueryHandler(handlers.callback_handler))
     application.add_handler(
         MessageHandler(filters.TEXT & (~filters.COMMAND), handlers.message_handler)
+    )
+    application.add_handler(
+        CommandHandler(consts.START_COMMAND, handlers.start_handler)
+    )
+    application.add_handler(
+        CommandHandler(consts.LYRICS_COMMAND, handlers.songs.search_lyrics_handler)
+    )
+    application.add_handler(
+        CommandHandler(consts.VIDEO_COMMAND, handlers.video.search_handler)
     )
     application.run_polling()

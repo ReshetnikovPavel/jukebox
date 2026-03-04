@@ -1,7 +1,7 @@
 import asyncio
 
 import yt_dlp
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 import consts
@@ -14,10 +14,19 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text = message.text
     assert text is not None
-    text = utils.strip_command(text)
+    command, text = utils.split_command(text)
 
     if text == "" or text.isspace():
-        await message.reply_text("Кажется, что вы забыли написать, что нужно найти 😭")
+        if command:
+            await message.reply_text(
+                f"Напишите, пожалуйста, ваш запрос для команды {command}",
+                reply_markup=ForceReply(),
+            )
+        else:
+            await message.reply_text(
+                "Напишите, пожалуйста, ваш запрос",
+                reply_markup=ForceReply(),
+            )
         return
 
     limit = 10

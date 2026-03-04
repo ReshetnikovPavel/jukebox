@@ -10,11 +10,14 @@ def default_yt_dlp_opts() -> dict:
     }
 
 
-def strip_command(s: str):
+def split_command(s: str) -> tuple[str | None, str]:
     if s.startswith("/"):
         splits = s.split(maxsplit=1)
-        return "" if len(splits) == 1 else splits[1]
-    return s
+        if len(splits) == 1:
+            return (splits[0], "")
+        else:
+            return (splits[0], splits[1])
+    return (None, s)
 
 
 def chunks(s: str, chunk_len: int) -> list[str]:
