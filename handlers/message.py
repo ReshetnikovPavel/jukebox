@@ -1,5 +1,3 @@
-import logging
-
 import validators
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -15,7 +13,6 @@ async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     assert text is not None
 
     if reply := message.reply_to_message:
-        logging.info(reply)
         if reply.text is not None:
             if reply.text.endswith(consts.LYRICS_COMMAND):
                 return await songs.search_lyrics_handler(update, context)
