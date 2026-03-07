@@ -37,6 +37,10 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             ytdl.extract_info, f"ytsearch{limit}:{text}", download=False
         )
 
+    if len(response["entries"]) == 0:
+        await message.reply_text("Ничего не нашлось 😭")
+        return
+
     keyboard = [
         [
             InlineKeyboardButton(

@@ -39,6 +39,10 @@ async def search_handler(
     results = await asyncio.to_thread(ytmusic.search, text, filter="songs", limit=limit)
     songs = [into_song(r) for r in results[:limit]]
 
+    if len(songs) == 0:
+        await message.reply_text("Ничего не нашлось 😭")
+        return
+
     keyboard = [
         [
             InlineKeyboardButton(
