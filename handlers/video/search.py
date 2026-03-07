@@ -9,7 +9,7 @@ import utils
 
 
 async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message = update.message
+    message = update.message or update.edited_message
     assert message is not None
 
     text = message.text

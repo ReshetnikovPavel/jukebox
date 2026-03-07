@@ -14,7 +14,7 @@ async def search_handler(
     context: ContextTypes.DEFAULT_TYPE,
     callback_const=consts.SEARCH_CALLBACK,
 ):
-    message = update.message
+    message = update.message or update.edited_message
     assert message is not None
 
     text = message.text

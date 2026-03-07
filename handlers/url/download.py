@@ -15,7 +15,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     assert chat is not None
 
-    message = update.message
+    message = update.message or update.edited_message
     assert message is not None
 
     link = message.text

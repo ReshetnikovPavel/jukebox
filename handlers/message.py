@@ -7,7 +7,7 @@ from handlers import songs, url, video
 
 
 async def message_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    message = update.message
+    message = update.message or update.edited_message
     assert message is not None
     text = message.text
     assert text is not None
