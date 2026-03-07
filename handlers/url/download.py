@@ -35,6 +35,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             **utils.default_yt_dlp_opts()
         }
         with yt_dlp.YoutubeDL(opts) as ytdl:
+            assert isinstance(ytdl, yt_dlp.YoutubeDL)
             await asyncio.to_thread(ytdl.download, link)
 
         with open(out_path + ".info.json") as metadata_file:

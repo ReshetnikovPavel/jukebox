@@ -1,11 +1,12 @@
-from dataclasses import dataclass
 import asyncio
+from dataclasses import dataclass
 
 import ytmusicapi
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 import consts
+import utils
 
 
 async def search_handler(
@@ -18,9 +19,7 @@ async def search_handler(
 
     text = message.text
     assert text is not None
-    if text.startswith("/"):
-        splits = text.split(maxsplit=1)
-        text = "" if len(splits) == 1 else splits[1]
+    text = utils.strip_command(text)
 
     if text == "" or text.isspace():
         await message.reply_text("Кажется, что вы забыли написать, что нужно найти 😭")

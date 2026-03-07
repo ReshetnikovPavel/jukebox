@@ -1,4 +1,5 @@
 import telegram
+
 import consts
 
 
@@ -9,11 +10,20 @@ def default_yt_dlp_opts() -> dict:
     }
 
 
+def strip_command(s: str):
+    if s.startswith("/"):
+        splits = s.split(maxsplit=1)
+        return "" if len(splits) == 1 else splits[1]
+    return s
+
+
 def chunks(s: str, chunk_len: int) -> list[str]:
     assert chunk_len >= 0
     return [s[i : i + chunk_len] for i in range(0, len(s), chunk_len)]
 
 
-async def send_long_message(bot: telegram.Bot, chat_id: int | str, text: str, **kwargs) -> None:
+async def send_long_message(
+    bot: telegram.Bot, chat_id: int | str, text: str, **kwargs
+) -> None:
     for chunk in chunks(text, 4096):
         await bot.send_message(chat_id, chunk, **kwargs)
