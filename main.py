@@ -36,6 +36,9 @@ if __name__ == "__main__":
         CommandHandler(consts.START_COMMAND, handlers.start_handler)
     )
     application.add_handler(
+        CommandHandler(consts.HELP_COMMAND, handlers.help_handler)
+    )
+    application.add_handler(
         CommandHandler(consts.LYRICS_COMMAND, handlers.songs.search_lyrics_handler)
     )
     application.add_handler(

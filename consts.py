@@ -5,6 +5,7 @@ YT_MUSIC_HEADERS_PATH = "browser.json"
 YT_COOKIES_PATH = "cookies-youtube-com.txt"
 
 START_COMMAND = "start"
+HELP_COMMAND = "help"
 LYRICS_COMMAND = "lyrics"
 VIDEO_COMMAND = "video"
 
