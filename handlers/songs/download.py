@@ -1,10 +1,12 @@
 import asyncio
+import logging
 import os
 import tempfile
 
 import yt_dlp
 from telegram import CallbackQuery, Message, Update
 from telegram.ext import ContextTypes
+from yt_dlp.utils import DownloadError
 
 import consts
 import utils
@@ -37,8 +39,15 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "outtmpl": out_path,
             **utils.default_yt_dlp_opts()
         }
-        with yt_dlp.YoutubeDL(opts) as ytdl:
-            await asyncio.to_thread(ytdl.download, link)
+        try:
+            with yt_dlp.YoutubeDL(opts) as ytdl:
+                await asyncio.to_thread(ytdl.download, link)
+        except DownloadError as e:
+            logging.error(e)
+            del opts["cookiefile"]
+            with yt_dlp.YoutubeDL(opts) as ytdl:
+                await asyncio.to_thread(ytdl.download, link)
+
 
         artists, title = artists_title_str.split(consts.SEP, maxsplit=1)
         artists = artists.strip()
