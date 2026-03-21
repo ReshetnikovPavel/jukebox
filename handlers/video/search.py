@@ -1,14 +1,14 @@
 import asyncio
 
 import yt_dlp
-from telegram import ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import ContextTypes
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import ContextTypes, ConversationHandler
 
 import consts
 import utils
 
 
-async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str | int:
     message = update.message or update.edited_message
     assert message is not None
 
@@ -17,17 +17,8 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     command, text = utils.split_command(text)
 
     if text == "" or text.isspace():
-        if command:
-            await message.reply_text(
-                f"Напишите, пожалуйста, ваш запрос для команды {command}",
-                reply_markup=ForceReply(),
-            )
-        else:
-            await message.reply_text(
-                "Напишите, пожалуйста, ваш запрос",
-                reply_markup=ForceReply(),
-            )
-        return
+        await message.reply_text("Напишите, пожалуйста, ваш запрос")
+        return consts.CONVERSATION_HANDLER_REPEAT
 
     limit = 10
     opts = {"extract_flat": "in_playlist", **utils.default_yt_dlp_opts()}
@@ -39,7 +30,7 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if len(response["entries"]) == 0:
         await message.reply_text("Ничего не нашлось 😭")
-        return
+        return ConversationHandler.END
 
     keyboard = [
         [
@@ -53,3 +44,5 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await message.reply_text("Выберите трек", reply_markup=reply_markup)
+
+    return ConversationHandler.END

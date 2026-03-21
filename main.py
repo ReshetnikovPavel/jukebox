@@ -8,6 +8,7 @@ from telegram.ext import (
     CommandHandler,
     MessageHandler,
     filters,
+    ConversationHandler,
 )
 
 import consts
@@ -28,20 +29,56 @@ if __name__ == "__main__":
 
     application = ApplicationBuilder().token(token).concurrent_updates(True).build()
     application.add_error_handler(handlers.error_handler)
-    application.add_handler(CallbackQueryHandler(handlers.callback_handler))
     application.add_handler(
-        MessageHandler(filters.TEXT & (~filters.COMMAND), handlers.message_handler)
+        ConversationHandler(
+            entry_points=[
+                CommandHandler(
+                    consts.LYRICS_COMMAND, handlers.songs.search_lyrics_handler
+                )
+            ],
+            states={
+                consts.CONVERSATION_HANDLER_REPEAT: [
+                    CommandHandler(
+                        consts.LYRICS_COMMAND, handlers.songs.search_lyrics_handler
+                    ),
+                    MessageHandler(
+                        filters.TEXT & (~filters.COMMAND),
+                        handlers.songs.search_lyrics_handler,
+                    ),
+                ]
+            },
+            fallbacks=[
+                MessageHandler(filters.ALL, handlers.cancel_search_handler),
+            ],
+        )
+    )
+    application.add_handler(
+        ConversationHandler(
+            entry_points=[
+                CommandHandler(consts.VIDEO_COMMAND, handlers.video.search_handler)
+            ],
+            states={
+                consts.CONVERSATION_HANDLER_REPEAT: [
+                    CommandHandler(
+                        consts.LYRICS_COMMAND, handlers.video.search_handler
+                    ),
+                    MessageHandler(
+                        filters.TEXT & (~filters.COMMAND),
+                        handlers.video.search_handler,
+                    ),
+                ]
+            },
+            fallbacks=[
+                MessageHandler(filters.ALL, handlers.cancel_search_handler),
+            ],
+        )
     )
     application.add_handler(
         CommandHandler(consts.START_COMMAND, handlers.start_handler)
     )
+    application.add_handler(CommandHandler(consts.HELP_COMMAND, handlers.help_handler))
     application.add_handler(
-        CommandHandler(consts.HELP_COMMAND, handlers.help_handler)
+        MessageHandler(filters.TEXT & (~filters.COMMAND), handlers.message_handler)
     )
-    application.add_handler(
-        CommandHandler(consts.LYRICS_COMMAND, handlers.songs.search_lyrics_handler)
-    )
-    application.add_handler(
-        CommandHandler(consts.VIDEO_COMMAND, handlers.video.search_handler)
-    )
+    application.add_handler(CallbackQueryHandler(handlers.callback_handler))
     application.run_polling()

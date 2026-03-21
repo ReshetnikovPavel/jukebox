@@ -2,8 +2,8 @@ import asyncio
 from dataclasses import dataclass
 
 import ytmusicapi
-from telegram import ForceReply, InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import ContextTypes
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import ContextTypes, ConversationHandler
 
 import consts
 import utils
@@ -13,7 +13,7 @@ async def search_handler(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
     callback_const=consts.SEARCH_CALLBACK,
-):
+) -> str | int:
     message = update.message or update.edited_message
     assert message is not None
 
@@ -22,17 +22,8 @@ async def search_handler(
     command, text = utils.split_command(text)
 
     if text == "" or text.isspace():
-        if command:
-            await message.reply_text(
-                f"Напишите, пожалуйста, ваш запрос для команды {command}",
-                reply_markup=ForceReply(),
-            )
-        else:
-            await message.reply_text(
-                "Напишите, пожалуйста, ваш запрос",
-                reply_markup=ForceReply(),
-            )
-        return
+        await message.reply_text("Напишите, пожалуйста, ваш запрос")
+        return consts.CONVERSATION_HANDLER_REPEAT
 
     limit = 10
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
@@ -41,7 +32,7 @@ async def search_handler(
 
     if len(songs) == 0:
         await message.reply_text("Ничего не нашлось 😭")
-        return
+        return ConversationHandler.END
 
     keyboard = [
         [
@@ -55,6 +46,8 @@ async def search_handler(
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     await message.reply_text("Выберите трек", reply_markup=reply_markup)
+
+    return ConversationHandler.END
 
 
 async def search_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
