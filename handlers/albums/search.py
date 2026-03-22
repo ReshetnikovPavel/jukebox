@@ -1,3 +1,4 @@
+import logging
 import asyncio
 
 import ytmusicapi
@@ -9,9 +10,7 @@ import utils
 
 
 async def search_handler(
-    update: Update,
-    context: ContextTypes.DEFAULT_TYPE,
-    callback_const=consts.SEARCH_CALLBACK,
+    update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> str | int:
     message = update.message or update.edited_message
     assert message is not None
@@ -24,32 +23,22 @@ async def search_handler(
         await message.reply_text("Напишите, пожалуйста, ваш запрос")
         return consts.CONVERSATION_HANDLER_REPEAT
 
-    limit = 10
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
-    tracks = await asyncio.to_thread(ytmusic.search, text, filter="songs", limit=limit)
-    tracks = tracks[:limit]
+    albums = await asyncio.to_thread(ytmusic.search, text, filter="albums", limit=10)
+    albums = albums[:10]
 
-    if len(tracks) == 0:
-        await message.reply_text("Ничего не нашлось 😭")
-        return ConversationHandler.END
-
+    logging.info(albums)
     keyboard = [
         [
             InlineKeyboardButton(
-                f"{', '.join(a['name'] for a in t['artists'])} {consts.SEP} {t['title']}",
-                callback_data=f"{callback_const} {t['videoId']}",
+                f"{', '.join(artist['name'] for artist in a['artists'])} {consts.SEP} {a['title']}",
+                callback_data=f"{consts.SEARCH_CALLBACK_ALBUMS} {a['browseId']}",
             )
         ]
-        for t in tracks
+        for a in albums
     ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
-    await message.reply_text("Выберите трек", reply_markup=reply_markup)
+    await message.reply_text("Выберите альбом", reply_markup=reply_markup)
 
     return ConversationHandler.END
-
-
-async def search_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    return await search_handler(
-        update, context, callback_const=consts.SEARCH_CALLBACK_LYRICS
-    )

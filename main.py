@@ -13,6 +13,7 @@ from telegram.ext import (
 
 import consts
 import handlers
+import handlers.albums
 import handlers.songs
 import handlers.video
 
@@ -60,11 +61,32 @@ if __name__ == "__main__":
             states={
                 consts.CONVERSATION_HANDLER_REPEAT: [
                     CommandHandler(
-                        consts.LYRICS_COMMAND, handlers.video.search_handler
+                        consts.VIDEO_COMMAND, handlers.video.search_handler
                     ),
                     MessageHandler(
                         filters.TEXT & (~filters.COMMAND),
                         handlers.video.search_handler,
+                    ),
+                ]
+            },
+            fallbacks=[
+                MessageHandler(filters.ALL, handlers.cancel_search_handler),
+            ],
+        )
+    )
+    application.add_handler(
+        ConversationHandler(
+            entry_points=[
+                CommandHandler(consts.ALBUM_COMMAND, handlers.albums.search_handler)
+            ],
+            states={
+                consts.CONVERSATION_HANDLER_REPEAT: [
+                    CommandHandler(
+                        consts.ALBUM_COMMAND, handlers.albums.search_handler
+                    ),
+                    MessageHandler(
+                        filters.TEXT & (~filters.COMMAND),
+                        handlers.albums.search_handler,
                     ),
                 ]
             },

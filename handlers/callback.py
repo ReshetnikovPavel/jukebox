@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 import consts
-from handlers import songs
+from handlers import albums, songs
 
 
 async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -14,11 +14,18 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await callback_query.answer()
 
-    command = callback_data.split()[0]
+    parts = callback_data.split()
+    command = parts[0]
     match command:
         case consts.SEARCH_CALLBACK:
-            await songs.download_handler(update, context)
+            return await songs.download_handler(update, context)
         case consts.SEARCH_CALLBACK_LYRICS:
-            await songs.get_lyrics_handler(update, context)
+            return await songs.get_lyrics_handler(update, context)
+        case consts.SEARCH_CALLBACK_ALBUMS:
+            return await albums.get_handler(update, context)
+        case consts.GET_CALLBACK_ALBUMS if len(parts) == 2:
+            return await songs.download_handler(update, context)
+        case consts.GET_CALLBACK_ALBUMS:
+            return await albums.download_handler(update, context)
         case _:
             raise Exception("Unknown callback_data", callback_data)

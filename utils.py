@@ -1,4 +1,5 @@
 import telegram
+from telegram import CallbackQuery, Message
 
 import consts
 
@@ -30,3 +31,20 @@ async def send_long_message(
 ) -> None:
     for chunk in chunks(text, 4096):
         await bot.send_message(chat_id, chunk, **kwargs)
+
+
+def find_artists_title_str(callback_query: CallbackQuery, id: str) -> str | None:
+    message = callback_query.message
+    assert message is not None
+    assert isinstance(message, Message)
+
+    reply_markup = message.reply_markup
+    assert reply_markup is not None
+
+    for line in reply_markup.inline_keyboard:
+        button = line[0]
+        data = button.callback_data
+        assert isinstance(data, str)
+
+        if data.find(id) != -1:
+            return button.text
