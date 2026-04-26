@@ -10,6 +10,8 @@ wheels/
 oauth.json
 browser.json
 cookies-youtube-com.txt
+sync.sh
+rebuild-docker.sh
 
 # Virtual environments
 .venv
