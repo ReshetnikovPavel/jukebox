@@ -48,7 +48,8 @@ def __get_lyrics(
     assert isinstance(lyrics_id, str)
 
     lyrics = ytmusic.get_lyrics(lyrics_id, timestamps=False)
-    lyrics = typing.cast(Lyrics, lyrics)
+    if lyrics is None:
+        return None
     return lyrics["lyrics"]
 
 
