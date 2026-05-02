@@ -7,9 +7,9 @@ import ytmusicapi
 from telegram import Update
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
-from ytmusicapi.models import Lyrics
 
 import consts
+import services
 import utils
 
 
@@ -36,17 +36,7 @@ async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
     title = str(track["title"])
     artists_title_str = f"{artists} {consts.SEP} {title}"
 
-    lyrics_id = watch_playlist["lyrics"]
-    if lyrics_id is None:
-        await context.bot.send_message(
-            chat.id,
-            f"У <b>{html.escape(artists_title_str)}</b> нет слов в источнике 😭",
-            parse_mode=ParseMode.HTML,
-        )
-        return
-    assert isinstance(lyrics_id, str)
-
-    lyrics = await asyncio.to_thread(ytmusic.get_lyrics, lyrics_id, timestamps=False)
+    lyrics = await services.get_lyrics(ytmusic, watch_playlist)
     if lyrics is None:
         await context.bot.send_message(
             chat.id,
@@ -54,7 +44,7 @@ async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
             parse_mode=ParseMode.HTML,
         )
         return
-    lyrics = typing.cast(Lyrics, lyrics)["lyrics"]
+    assert isinstance(lyrics, str)
 
     text = f"<b>{html.escape(artists_title_str)}</b>\n\n{html.escape(lyrics)}"
     await utils.send_long_message(context.bot, chat.id, text, parse_mode=ParseMode.HTML)

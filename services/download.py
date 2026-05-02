@@ -2,6 +2,8 @@ import asyncio
 import os
 import subprocess
 import tempfile
+from contextlib import asynccontextmanager
+from types import AsyncGeneratorType
 
 import yt_dlp
 from telegram import Update
@@ -10,15 +12,15 @@ from telegram.ext import ContextTypes
 import consts
 import handlers
 import utils
-from services.metadata import write_metadata
 
 
-async def download_and_send_song(
+@asynccontextmanager
+async def download_song(
     video_id: str,
     artists_title_str: str,
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
-) -> None:
+) -> AsyncGeneratorType[str]:
     chat = update.effective_chat
     assert chat is not None
 
@@ -45,18 +47,8 @@ async def download_and_send_song(
             with yt_dlp.YoutubeDL(opts) as ytdl:
                 await asyncio.to_thread(ytdl.download, link)
         mp3_path = os.path.join(tmp_dir, f"{filename_without_ext}.mp3")
-        audio_path = mp3_path
         subprocess.check_call(["ffmpeg", "-i", webm_path, mp3_path])
-        try:
-            await write_metadata(video_id, mp3_path)
-        except Exception as e:
-            await context.bot.send_message(chat.id, "Аудио загрузилось, но не получилось записать метадату 😭")
-            await handlers.error.report(e, update, context)
 
-        artists, title = artists_title_str.split(consts.SEP, maxsplit=1)
-        artists = artists.strip()
-        title = title.strip()
-        await context.bot.send_audio(
-            chat.id, audio_path, title=title, performer=artists, write_timeout=3600
-        )
+        yield mp3_path
+
         await download_message.delete()

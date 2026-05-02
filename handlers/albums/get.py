@@ -1,5 +1,6 @@
 import asyncio
 import html
+import logging
 
 import ytmusicapi
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -21,11 +22,12 @@ async def get_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     assert callback_data is not None
 
     browse_id = callback_data.split(maxsplit=1)[1]
-    artists_title_str = utils.find_artists_title_str(callback_query, browse_id)
+    artists_title_str = utils.get_selected_button_text(callback_query, browse_id)
     assert artists_title_str is not None
 
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     result = await asyncio.to_thread(ytmusic.get_album, browse_id)
+    logging.info(result)
     tracks = result["tracks"]
 
     keyboard = [
@@ -41,7 +43,7 @@ async def get_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [
             InlineKeyboardButton(
                 "Скачать весь альбом",
-                callback_data=f"{consts.GET_CALLBACK_ALBUMS}",
+                callback_data=f"{consts.GET_CALLBACK_ALBUMS} {browse_id}",
             )
         ]
     )

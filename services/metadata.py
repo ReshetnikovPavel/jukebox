@@ -1,5 +1,7 @@
 import logging
+import asyncio
 import typing
+from dataclasses import dataclass
 from typing import Any
 
 import music_tag
@@ -8,77 +10,121 @@ import ytmusicapi
 from requests.models import Response
 
 import consts
-
-WatchPlaylist = dict[str, list[dict[str, Any]] | str | None]
-YtTrack = dict[str, Any]
+import services
 
 
-async def write_metadata(video_id: str, filepath: str) -> None:
-    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
-    watch_playlist: WatchPlaylist = ytmusic.get_watch_playlist(video_id, limit=1)
+@dataclass
+class TrackMetadata:
+    title: str
+    artist: str
+    album: str
+    album_artist: str
+    year: str
+    track_number: int | None
+    lyrics: str | None
+    artwork: bytes | None
+    total_tracks: int
+    video_id: str
 
-    yt_meta = typing.cast(list[YtTrack], watch_playlist["tracks"])[0]
-    logging.info(yt_meta)
 
-    lyrics = __get_lyrics(ytmusic, watch_playlist)
-    artwork = __get_artwork(yt_meta)
-    track_number = __get_track_number(ytmusic, yt_meta)
-
+def write_metadata(metadata: TrackMetadata, filepath: str) -> None:
     tag_editor = music_tag.load_file(filepath)
-    tag_editor["tracktitle"] = yt_meta["title"]
-    tag_editor["artist"] = yt_meta["artists"][0]["name"]
-    tag_editor["album"] = yt_meta["album"]["name"]
-    tag_editor["year"] = yt_meta["year"]
-    if track_number is not None:
-        tag_editor["tracknumber"] = track_number
-    if lyrics is not None:
-        tag_editor["lyrics"] = lyrics
-    if artwork is not None:
-        tag_editor["artwork"] = artwork
+    tag_editor["tracktitle"] = metadata.title
+    tag_editor["artist"] = metadata.artist
+    tag_editor["albumartist"] = metadata.album_artist
+    tag_editor["album"] = metadata.album
+    tag_editor["year"] = metadata.year
+    tag_editor["totaltracks"] = metadata.total_tracks
+    if metadata.track_number is not None:
+        tag_editor["tracknumber"] = metadata.track_number
+    if metadata.lyrics is not None:
+        tag_editor["lyrics"] = metadata.lyrics
+    if metadata.artwork is not None:
+        tag_editor["artwork"] = metadata.artwork
     tag_editor.save()
 
 
-def __get_lyrics(
-    ytmusic: ytmusicapi.YTMusic,
-    watch_playlist: WatchPlaylist,
-) -> str | None:
-    lyrics_id = watch_playlist["lyrics"]
-    if lyrics_id is None:
-        return None
-    assert isinstance(lyrics_id, str)
+async def get_metadata_by_video_id(
+    video_id: str, album_browse_id: str | None = None
+) -> TrackMetadata:
+    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    watch_playlist = await asyncio.to_thread(
+        ytmusic.get_watch_playlist, video_id, limit=1
+    )
 
-    lyrics = ytmusic.get_lyrics(lyrics_id, timestamps=False)
-    if lyrics is None:
-        return None
-    return lyrics["lyrics"]
+    tracks = watch_playlist["tracks"]
+    assert isinstance(tracks, list)
+    track = tracks[0]
+    title = track["title"]
+    album_browse_id = album_browse_id or track["album"]["id"]
+
+    album = await asyncio.to_thread(ytmusic.get_album, album_browse_id)
+    artwork = await __get_artwork(album["thumbnails"])
+    lyrics = await services.get_lyrics(ytmusic, watch_playlist)
+    for track in album["tracks"]:
+        if track["title"] == title:
+            break
+    metadata = __get_metadata(album, track, artwork, lyrics)
+    return metadata
 
 
-def __get_artwork(yt_meta: YtTrack) -> bytes | None:
-    thumbnails = yt_meta["thumbnail"]
+async def get_metadata_by_album_browse_id(browse_id: str) -> list[TrackMetadata]:
+    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    album = await asyncio.to_thread(ytmusic.get_album, browse_id)
+    artwork = await __get_artwork(album["thumbnails"])
+
+    metadatas: list[TrackMetadata] = []
+    for track in album["tracks"]:
+        watch_playlist = await asyncio.to_thread(
+            ytmusic.get_watch_playlist, track["videoId"], limit=1
+        )
+        lyrics = await services.get_lyrics(ytmusic, watch_playlist)
+        metadata = __get_metadata(album, track, artwork, lyrics)
+        metadatas.append(metadata)
+    return metadatas
+
+
+def __get_metadata(
+    album: dict,
+    track: dict,
+    artwork: bytes | None,
+    lyrics: str | None,
+) -> TrackMetadata:
+    logging.info(f"ALBUM::: {album}")
+    logging.info(f"TRACK::: {track}")
+    album_artist = ", ".join(a["name"] for a in album["artists"])
+    album_title = album["title"]
+    year = album["year"]
+    total_tracks = album["trackCount"]
+
+    title = track["title"]
+    artist = ", ".join(a["name"] for a in track["artists"])
+    track_number = track["trackNumber"]
+    video_id = track["videoId"]
+
+    return TrackMetadata(
+        title=title,
+        artist=artist,
+        album=album_title,
+        album_artist=album_artist,
+        year=year,
+        track_number=track_number,
+        lyrics=lyrics,
+        artwork=artwork,
+        total_tracks=total_tracks,
+        video_id=video_id,
+    )
+
+
+async def __get_artwork(thumbnails: list[dict[str, Any]]) -> bytes | None:
     widest_thumbnail = max(thumbnails, key=lambda t: t["width"], default=None)
     if widest_thumbnail is None:
         return None
 
     url = widest_thumbnail["url"]
-    image_response = typing.cast(Response, requests.get(url))
+    image_response = await asyncio.to_thread(requests.get, url)
+    image_response = typing.cast(Response, image_response)
     if not image_response.ok:
         raise Exception("Unable to get artwork", image_response)
 
     return image_response.content
-
-
-def __get_track_number(ytmusic: ytmusicapi.YTMusic, yt_meta: YtTrack) -> int | None:
-    album_id = yt_meta["album"]["id"]
-    album = ytmusic.get_album(album_id)
-
-    track_from_album = None
-    for track in album["tracks"]:
-        if track["title"] == yt_meta["title"]:
-            track_from_album = track
-            break
-
-    if track_from_album is None:
-        raise Exception("Track not found in the album", album)
-
-    track_number = track_from_album["trackNumber"]
-    return track_number

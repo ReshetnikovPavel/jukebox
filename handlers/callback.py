@@ -23,8 +23,6 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return await songs.get_lyrics_handler(update, context)
         case consts.SEARCH_CALLBACK_ALBUMS:
             return await albums.get_handler(update, context)
-        case consts.GET_CALLBACK_ALBUMS if len(parts) == 2:
-            return await songs.download_handler(update, context)
         case consts.GET_CALLBACK_ALBUMS:
             return await albums.download_handler(update, context)
         case _:

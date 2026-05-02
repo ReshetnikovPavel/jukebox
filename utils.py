@@ -33,7 +33,7 @@ async def send_long_message(
         await bot.send_message(chat_id, chunk, **kwargs)
 
 
-def find_artists_title_str(callback_query: CallbackQuery, id: str) -> str | None:
+def get_selected_button_text(callback_query: CallbackQuery, id: str) -> str | None:
     message = callback_query.message
     assert message is not None
     assert isinstance(message, Message)
