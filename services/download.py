@@ -49,6 +49,7 @@ async def download_song(
         mp3_path = os.path.join(tmp_dir, f"{filename_without_ext}.mp3")
         subprocess.check_call(["ffmpeg", "-i", webm_path, mp3_path])
 
-        yield mp3_path
-
-        await download_message.delete()
+        try:
+            yield mp3_path
+        finally:
+            await download_message.delete()
