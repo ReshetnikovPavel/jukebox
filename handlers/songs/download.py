@@ -1,9 +1,7 @@
-import asyncio
+import consts
 from telegram import Update
 from telegram.ext import ContextTypes
 
-import consts
-import handlers
 import services
 import utils
 
@@ -26,22 +24,16 @@ async def download_handler(
     artists_title_str = utils.get_selected_button_text(callback_query, video_id)
     assert artists_title_str is not None
 
-    metadata_task = asyncio.create_task(services.get_metadata_by_video_id(video_id, browse_id))
-    async with services.download_song(
-        video_id, artists_title_str, update, context
-    ) as audio_path:
-        try:
-            metadata = await metadata_task
-            services.write_metadata(metadata, audio_path)
-        except Exception as e:
-            await context.bot.send_message(
-                chat.id, "Аудио загрузилось, но не получилось записать метадату 😭"
-            )
-            await handlers.error.report(e, update, context)
+    artist, title = artists_title_str.split(consts.SEP, maxsplit=1)
+    artist = artist.strip()
+    title = title.strip()
 
-        artists, title = artists_title_str.split(consts.SEP, maxsplit=1)
-        artists = artists.strip()
-        title = title.strip()
-        await context.bot.send_audio(
-            chat.id, audio_path, title=title, performer=artists, write_timeout=3600
-        )
+    await services.download_and_send_track(
+        video_id,
+        update,
+        context,
+        chat.id,
+        browse_id=browse_id,
+        artist=artist,
+        title=title,
+    )

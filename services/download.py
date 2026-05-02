@@ -11,13 +11,41 @@ from telegram.ext import ContextTypes
 
 import consts
 import handlers
+import services
 import utils
 
 
-@asynccontextmanager
-async def download_song(
+async def download_and_send_track(
     video_id: str,
-    artists_title_str: str,
+    update: Update,
+    context: ContextTypes.DEFAULT_TYPE,
+    chat_id: int,
+    browse_id: str | None = None,
+    artist: str | None = None,
+    title: str | None = None,
+):
+    metadata = await services.get_metadata_by_video_id(video_id, browse_id)
+    title = title or metadata.title
+    artist = artist or metadata.artist
+    async with download_track(video_id, artist, title, update, context) as audio_path:
+        try:
+            services.write_metadata(metadata, audio_path)
+        except Exception as e:
+            await context.bot.send_message(
+                chat_id, "Трек загрузился, но не получилось записать метадату 😭"
+            )
+            await handlers.error.report(e, update, context)
+
+        await context.bot.send_audio(
+            chat_id, audio_path, title=title, performer=artist, write_timeout=3600
+        )
+
+
+@asynccontextmanager
+async def download_track(
+    video_id: str,
+    artist: str,
+    title: str,
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
 ) -> AsyncGeneratorType[str]:
@@ -25,11 +53,11 @@ async def download_song(
     assert chat is not None
 
     download_message = await context.bot.send_message(
-        chat.id, f"Загружаю трек {artists_title_str}"
+        chat.id, f"Загружаю трек {artist} {consts.SEP} {title}"
     )
 
     link = f"https://music.youtube.com/watch?v={video_id}"
-    filename_without_ext = artists_title_str.replace(consts.SEP, "-")
+    filename_without_ext = f"{artist} - {title}"
     with tempfile.TemporaryDirectory() as tmp_dir:
         webm_path = os.path.join(tmp_dir, f"{filename_without_ext}.webm")
         opts = {

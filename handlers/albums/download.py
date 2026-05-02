@@ -44,14 +44,11 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await metadata_message.delete()
 
     for song in get_songs(callback_query):
-        async with services.download_song(
-            song.video_id, song.artists_title_str, update, context
+        async with services.download_track(
+            song.video_id, song.artist, song.title, update, context
         ) as audio_path:
-            artists, title = song.artists_title_str.split(consts.SEP, maxsplit=1)
-            artists = artists.strip()
-            title = title.strip()
             try:
-                services.metadata.write_metadata(meta_by_title[title], audio_path)
+                services.write_metadata(meta_by_title[song.title], audio_path)
             except Exception as e:
                 await context.bot.send_message(
                     chat.id, "Трек загрузился, но не получилось записать метадату 😭"
@@ -59,7 +56,11 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await handlers.error.report(e, update, context)
 
             await context.bot.send_audio(
-                chat.id, audio_path, title=title, performer=artists, write_timeout=3600
+                chat.id,
+                audio_path,
+                title=song.title,
+                performer=song.artist,
+                write_timeout=3600,
             )
     await download_album_message.delete()
 
@@ -67,7 +68,8 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 @dataclass()
 class Song:
     video_id: str
-    artists_title_str: str
+    artist: str
+    title: str
 
 
 def get_songs(callback_query: CallbackQuery) -> GeneratorType[Song]:
@@ -85,8 +87,12 @@ def get_songs(callback_query: CallbackQuery) -> GeneratorType[Song]:
         data = button.callback_data
         assert isinstance(data, str)
 
+        artist, title = button.text.split(consts.SEP, maxsplit=1)
+        artist = artist.strip()
+        title = title.strip()
+
         parts = data.split(maxsplit=1)
-        yield Song(video_id=parts[1], artists_title_str=button.text)
+        yield Song(video_id=parts[1], artist=artist, title=title)
 
 
 def get_browse_id(callback_query: CallbackQuery) -> str | None:
