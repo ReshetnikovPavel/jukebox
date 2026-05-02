@@ -20,11 +20,10 @@ class TrackMetadata:
     album: str
     album_artist: str
     year: str
-    track_number: int | None
+    track_number: int
     lyrics: str | None
     artwork: bytes | None
     total_tracks: int
-    video_id: str
 
 
 def write_metadata(metadata: TrackMetadata, filepath: str) -> None:
@@ -35,8 +34,7 @@ def write_metadata(metadata: TrackMetadata, filepath: str) -> None:
     tag_editor["album"] = metadata.album
     tag_editor["year"] = metadata.year
     tag_editor["totaltracks"] = metadata.total_tracks
-    if metadata.track_number is not None:
-        tag_editor["tracknumber"] = metadata.track_number
+    tag_editor["tracknumber"] = metadata.track_number
     if metadata.lyrics is not None:
         tag_editor["lyrics"] = metadata.lyrics
     if metadata.artwork is not None:
@@ -100,7 +98,6 @@ def __get_metadata(
     title = track["title"]
     artist = ", ".join(a["name"] for a in track["artists"])
     track_number = track["trackNumber"]
-    video_id = track["videoId"]
 
     return TrackMetadata(
         title=title,
@@ -112,7 +109,6 @@ def __get_metadata(
         lyrics=lyrics,
         artwork=artwork,
         total_tracks=total_tracks,
-        video_id=video_id,
     )
 
 
