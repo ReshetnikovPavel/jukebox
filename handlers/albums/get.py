@@ -27,17 +27,17 @@ async def get_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     result = await asyncio.to_thread(ytmusic.get_album, browse_id)
-    logging.info(result)
     tracks = result["tracks"]
+    video_ids = await asyncio.gather(*[search_video_id(ytmusic, t) for t in tracks])
 
     keyboard = [
         [
             InlineKeyboardButton(
                 f"{', '.join(a['name'] for a in t['artists'])} {consts.SEP} {t['title']}",
-                callback_data=f"{consts.GET_CALLBACK_ALBUMS} {t['videoId']}",
+                callback_data=f"{consts.GET_CALLBACK_ALBUMS} {video_id}",
             )
         ]
-        for t in tracks
+        for (t, video_id) in zip(tracks, video_ids)
     ]
     keyboard.append(
         [
@@ -53,3 +53,22 @@ async def get_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(
         chat.id, text, reply_markup=reply_markup, parse_mode=ParseMode.HTML
     )
+
+
+async def search_video_id(ytmusic: ytmusicapi.YTMusic, track_from_album: dict) -> str:
+    query = f"{track_from_album['title']} {track_from_album['artists'][0]['name']}"
+    tracks = await asyncio.to_thread(ytmusic.search, query, filter="songs")
+    for track in tracks:
+        if (
+            track["title"] == track_from_album["title"]
+            and len(track["artists"]) == len(track_from_album["artists"])
+            and all(
+                t["id"] == a["id"]
+                for (t, a) in zip(track["artists"], track_from_album["artists"])
+            )
+        ):
+            return track["videoId"]
+    logging.warning(
+        f"Unable to find videoId for track from album TRACK_FROM_ALBUM:::{track_from_album}, TRACKS:::{tracks}"
+    )
+    return track_from_album["videoId"]
