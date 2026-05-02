@@ -6,7 +6,6 @@ import music_tag
 import requests
 import ytmusicapi
 from requests.models import Response
-from ytmusicapi.models import Lyrics
 
 import consts
 
@@ -14,11 +13,12 @@ WatchPlaylist = dict[str, list[dict[str, Any]] | str | None]
 YtTrack = dict[str, Any]
 
 
-def write_metadata(video_id: str, filepath: str) -> None:
+async def write_metadata(video_id: str, filepath: str) -> None:
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     watch_playlist: WatchPlaylist = ytmusic.get_watch_playlist(video_id, limit=1)
 
     yt_meta = typing.cast(list[YtTrack], watch_playlist["tracks"])[0]
+    logging.info(yt_meta)
 
     lyrics = __get_lyrics(ytmusic, watch_playlist)
     artwork = __get_artwork(yt_meta)
@@ -62,8 +62,7 @@ def __get_artwork(yt_meta: YtTrack) -> bytes | None:
     url = widest_thumbnail["url"]
     image_response = typing.cast(Response, requests.get(url))
     if not image_response.ok:
-        logging.error("Unable to get artwork", image_response)
-        return None
+        raise Exception("Unable to get artwork", image_response)
 
     return image_response.content
 
@@ -79,8 +78,7 @@ def __get_track_number(ytmusic: ytmusicapi.YTMusic, yt_meta: YtTrack) -> int | N
             break
 
     if track_from_album is None:
-        logging.error("Track not found in the album", album)
-        return None
+        raise Exception("Track not found in the album", album)
 
     track_number = track_from_album["trackNumber"]
     return track_number

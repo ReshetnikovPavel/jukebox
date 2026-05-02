@@ -13,11 +13,20 @@ import consts
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     assert isinstance(context.error, Exception)
-    logging.error("Error:", exc_info=context.error)
+    await report(context.error, update, context)
+    if isinstance(update, Update) and isinstance(update.effective_chat, Chat):
+        chat_id = update.effective_chat.id
+        await context.bot.send_message(
+            chat_id, "Произошла какая-то ошибка, простите 😭"
+        )
 
-    tb_list = traceback.format_exception(
-        None, context.error, context.error.__traceback__
-    )
+
+async def report(
+    error: Exception, update: Update | object, context: ContextTypes.DEFAULT_TYPE
+) -> None:
+    logging.error("Error:", exc_info=error)
+
+    tb_list = traceback.format_exception(None, error, error.__traceback__)
     tb_string = "".join(tb_list)[:500]
 
     update_str = update.to_dict() if isinstance(update, Update) else str(update)
@@ -40,10 +49,4 @@ async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     else:
         logging.error(
             f"Unable to send error message to developer. {consts.DEVELOPER_CHAT_ID_VAR} environment var is not set"
-        )
-
-    if isinstance(update, Update) and isinstance(update.effective_chat, Chat):
-        chat_id = update.effective_chat.id
-        await context.bot.send_message(
-            chat_id, "Произошла какая-то ошибка, простите 😭"
         )
