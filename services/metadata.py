@@ -1,5 +1,5 @@
-import logging
 import asyncio
+import logging
 import typing
 from dataclasses import dataclass
 from typing import Any
@@ -15,6 +15,7 @@ import services
 
 @dataclass
 class TrackMetadata:
+    is_video: bool
     title: str
     artist: str
     album: str | None
@@ -97,6 +98,7 @@ def __get_metadata_for_video(track: dict, artwork: bytes | None) -> TrackMetadat
     title = track["title"]
     artist = ", ".join(a["name"] for a in track["artists"])
     return TrackMetadata(
+        is_video=True,
         title=title,
         artist=artist,
         artwork=artwork,
@@ -127,6 +129,7 @@ def __get_metadata_for_song(
     track_number = track["trackNumber"]
 
     return TrackMetadata(
+        is_video=False,
         title=title,
         artist=artist,
         album=album_title,

@@ -1,3 +1,5 @@
+from services.metadata import TrackMetadata
+import typing
 import asyncio
 import os
 import subprocess
@@ -5,6 +7,7 @@ import tempfile
 from contextlib import asynccontextmanager
 from types import AsyncGeneratorType
 
+import youtube_title_parse
 import yt_dlp
 from telegram import Update
 from telegram.ext import ContextTypes
@@ -23,13 +26,26 @@ async def download_and_send_track(
     browse_id: str | None = None,
     artist: str | None = None,
     title: str | None = None,
+    parse_video_title: bool = False,
 ):
-    metadata = await services.get_metadata_by_video_id(video_id, browse_id)
-    title = title or metadata.title
-    artist = artist or metadata.artist
+    try:
+        metadata = await services.get_metadata_by_video_id(video_id, browse_id)
+    except Exception as e:
+        await context.bot.send_message(chat_id, "Не получилось найти метадату 😭")
+        await handlers.error.report(e, update, context)
+        metadata = None
+
+    (artist, title) = __get_artist_title(metadata, artist, title, parse_video_title)
+    if metadata is not None:
+        metadata.artist = artist
+        metadata.title = title
+
+    assert title is not None
+    assert artist is not None
     async with download_track(video_id, artist, title, update, context) as audio_path:
         try:
-            services.write_metadata(metadata, audio_path)
+            if metadata is not None:
+                services.write_metadata(metadata, audio_path)
         except Exception as e:
             await context.bot.send_message(
                 chat_id, "Трек загрузился, но не получилось записать метадату 😭"
@@ -39,6 +55,29 @@ async def download_and_send_track(
         await context.bot.send_audio(
             chat_id, audio_path, title=title, performer=artist, write_timeout=3600
         )
+
+
+def __get_artist_title(
+    metadata: TrackMetadata | None,
+    title: str | None,
+    artist: str | None,
+    parse_video_title: bool,
+) -> tuple[str, str]:
+    if metadata is not None and not metadata.is_video:
+        return (metadata.artist, metadata.title)
+
+    if metadata is not None:
+        artist = metadata.artist
+        title = metadata.title
+
+    if parse_video_title and (
+        parse_result := youtube_title_parse.get_artist_title(title)
+    ):
+        return parse_result
+
+    assert artist is not None
+    assert title is not None
+    return (artist, title)
 
 
 @asynccontextmanager

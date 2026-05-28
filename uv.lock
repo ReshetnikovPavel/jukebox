@@ -187,6 +187,7 @@ dependencies = [
     { name = "pillow" },
     { name = "python-telegram-bot" },
     { name = "validators" },
+    { name = "youtube-title-parse" },
     { name = "yt-dlp", extra = ["default"] },
     { name = "ytmusicapi" },
 ]
@@ -198,6 +199,7 @@ requires-dist = [
     { name = "pillow", specifier = ">=12.2.0" },
     { name = "python-telegram-bot", specifier = ">=22.5" },
     { name = "validators", specifier = ">=0.35.0" },
+    { name = "youtube-title-parse", specifier = ">=1.0.0" },
     { name = "yt-dlp", extras = ["default"], specifier = ">=2025.12.8" },
     { name = "ytmusicapi", specifier = ">=1.11.4" },
 ]
@@ -360,6 +362,15 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/c2/b6/b9afed2afadddaf5ebb2afa801abf4b0868f42f8539bfe4b071b5266c9fe/websockets-16.0-cp314-cp314t-win32.whl", hash = "sha256:5a4b4cc550cb665dd8a47f868c8d04c8230f857363ad3c9caf7a0c3bf8c61ca6", size = 178085, upload-time = "2026-01-10T09:23:33.816Z" },
     { url = "https://files.pythonhosted.org/packages/9f/3e/28135a24e384493fa804216b79a6a6759a38cc4ff59118787b9fb693df93/websockets-16.0-cp314-cp314t-win_amd64.whl", hash = "sha256:b14dc141ed6d2dde437cddb216004bcac6a1df0935d79656387bd41632ba0bbd", size = 178531, upload-time = "2026-01-10T09:23:35.016Z" },
     { url = "https://files.pythonhosted.org/packages/6f/28/258ebab549c2bf3e64d2b0217b973467394a9cea8c42f70418ca2c5d0d2e/websockets-16.0-py3-none-any.whl", hash = "sha256:1637db62fad1dc833276dded54215f2c7fa46912301a24bd94d45d46a011ceec", size = 171598, upload-time = "2026-01-10T09:23:45.395Z" },
+]
+
+[[package]]
+name = "youtube-title-parse"
+version = "1.0.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/34/72/59407b949e51e6f174d4b6ceaa175034a66c6b6770285242cc41d8e2c775/youtube_title_parse-1.0.0.tar.gz", hash = "sha256:350cc055c058e8f639ac7e1cbc67a1fb485a4bb5fcd1f9645d79d1ccc8e3518d", size = 13479, upload-time = "2020-05-25T19:46:56.848Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/a6/a4/d2fd0eaee9739098afadf71560e817ccd1c057275c3724ec9b8b36fb5c9a/youtube_title_parse-1.0.0-py2.py3-none-any.whl", hash = "sha256:88c9413e9f478affa9152dd234ec55223e4b8785973707f87f67fe1b55f61b85", size = 9653, upload-time = "2020-05-25T19:46:55.21Z" },
 ]
 
 [[package]]

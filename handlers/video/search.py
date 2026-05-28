@@ -36,7 +36,7 @@ async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         [
             InlineKeyboardButton(
                 f"{video['channel']} {consts.SEP} {video['title']}",
-                callback_data=f"{consts.SEARCH_CALLBACK} {video['id']}",
+                callback_data=f"{consts.SEARCH_CALLBACK_VIDEO} {video['id']}",
             )
         ]
         for video in response["entries"]

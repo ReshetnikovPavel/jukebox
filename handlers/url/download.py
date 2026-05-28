@@ -28,14 +28,23 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     parsed_url = urlparse(link)
     domain = parsed_url.netloc
-    if domain == "youtube.com" or domain.endswith(".youtube.com"):
-        video_id = parse_qs(parsed_url.query)["v"][0]
-        await services.download_and_send_track(video_id, update, context, chat.id)
-        return
-    if domain == "youtu.be":
-        video_id = parsed_url.path.split("/")[1]
-        await services.download_and_send_track(video_id, update, context, chat.id)
-        return
+    match domain:
+        case "music.youtube.com": 
+            video_id = parse_qs(parsed_url.query)["v"][0]
+            await services.download_and_send_track(video_id, update, context, chat.id)
+            return
+        case "youtube.com":
+            video_id = parse_qs(parsed_url.query)["v"][0]
+            await services.download_and_send_track(
+                video_id, update, context, chat.id, parse_video_title=True
+            )
+            return
+        case "youtu.be":
+            video_id = parsed_url.path.split("/")[1]
+            await services.download_and_send_track(
+                video_id, update, context, chat.id, parse_video_title=True
+            )
+            return
 
     download_message = await context.bot.send_message(
         chat.id, "Скачиваю аудио из видео"
