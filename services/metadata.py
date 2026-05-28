@@ -83,6 +83,7 @@ async def get_metadata_by_album_browse_id(browse_id: str) -> list[TrackMetadata]
 
     metadatas: list[TrackMetadata] = []
     for track in album["tracks"]:
+        logging.info("TRACK:::", track)
         watch_playlist = await asyncio.to_thread(
             ytmusic.get_watch_playlist, track["videoId"], limit=1
         )

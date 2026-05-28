@@ -36,7 +36,7 @@ async def report(
         "</pre>\n\n"
         f"<pre>context.chat_data = {html.escape(str(context.chat_data)[:500])}</pre>\n\n"
         f"<pre>context.user_data = {html.escape(str(context.user_data)[:500])}</pre>\n\n"
-        f"<pre>{html.escape(tb_string[:500])}</pre>"
+        f"<pre>{html.escape(tb_string[-500:])}</pre>"
     )
 
     if len(message) > 4096:

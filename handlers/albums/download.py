@@ -48,7 +48,11 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             song.video_id, song.artist, song.title, update, context
         ) as audio_path:
             try:
-                services.write_metadata(meta_by_title[song.title], audio_path)
+                if meta_by_title:
+                    track_meta = meta_by_title[song.title]
+                else:
+                    track_meta = await services.get_metadata_by_video_id(song.video_id)
+                services.write_metadata(track_meta, audio_path)
             except Exception as e:
                 await context.bot.send_message(
                     chat.id, "Трек загрузился, но не получилось записать метадату 😭"
