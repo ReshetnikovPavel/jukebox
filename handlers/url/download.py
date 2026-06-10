@@ -33,13 +33,13 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             video_id = parse_qs(parsed_url.query)["v"][0]
             await services.download_and_send_track(video_id, update, context, chat.id)
             return
-        case "youtube.com":
+        case "www.youtube.com" | "youtube.com":
             video_id = parse_qs(parsed_url.query)["v"][0]
             await services.download_and_send_track(
                 video_id, update, context, chat.id, parse_video_title=True
             )
             return
-        case "youtu.be":
+        case "www.youtu.be" | "youtu.be":
             video_id = parsed_url.path.split("/")[1]
             await services.download_and_send_track(
                 video_id, update, context, chat.id, parse_video_title=True

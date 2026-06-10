@@ -35,7 +35,7 @@ async def download_and_send_track(
         await handlers.error.report(e, update, context)
         metadata = None
 
-    (artist, title) = __get_artist_title(metadata, artist, title, parse_video_title)
+    (artist, title) = __get_artist_title(metadata, title, artist, parse_video_title)
     if metadata is not None:
         metadata.artist = artist
         metadata.title = title
