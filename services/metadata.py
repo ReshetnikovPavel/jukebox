@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import typing
 from dataclasses import dataclass
 from typing import Any
@@ -69,7 +68,7 @@ async def get_metadata_by_video_id(
 
     album = await asyncio.to_thread(ytmusic.get_album, album_browse_id)
     artwork = await __get_artwork(album["thumbnails"])
-    lyrics = await services.get_lyrics(ytmusic, watch_playlist)
+    lyrics = await services.get_lyrics_from_playlist(ytmusic, watch_playlist)
     for track in album["tracks"]:
         if track["title"] == title:
             break
@@ -84,11 +83,7 @@ async def get_metadata_by_album_browse_id(browse_id: str) -> list[TrackMetadata]
 
     metadatas: list[TrackMetadata] = []
     for track in album["tracks"]:
-        logging.info("TRACK:::", track)
-        watch_playlist = await asyncio.to_thread(
-            ytmusic.get_watch_playlist, track["videoId"], limit=1
-        )
-        lyrics = await services.get_lyrics(ytmusic, watch_playlist)
+        lyrics = await services.get_lyrics_from_video_id(ytmusic, track["videoId"])
         metadata = __get_metadata_for_song(album, track, artwork, lyrics)
         metadatas.append(metadata)
     return metadatas
@@ -117,8 +112,6 @@ def __get_metadata_for_song(
     artwork: bytes | None,
     lyrics: str | None,
 ) -> TrackMetadata:
-    logging.info(f"ALBUM::: {album}")
-    logging.info(f"TRACK::: {track}")
     album_artist = ", ".join(a["name"] for a in album["artists"])
     album_title = album["title"]
     year = album["year"]

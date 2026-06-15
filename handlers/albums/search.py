@@ -1,4 +1,3 @@
-import logging
 import asyncio
 
 import ytmusicapi
@@ -27,7 +26,6 @@ async def search_handler(
     albums = await asyncio.to_thread(ytmusic.search, text, filter="albums", limit=10)
     albums = albums[:10]
 
-    logging.info(albums)
     keyboard = [
         [
             InlineKeyboardButton(
