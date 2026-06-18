@@ -7,25 +7,32 @@ from telegram.ext import ContextTypes, ConversationHandler
 import consts
 import utils
 
+SEARCH_LIMIT = 10
 
-async def search_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> str | int:
+
+async def search_handler(
+    update: Update, _context: ContextTypes.DEFAULT_TYPE
+) -> str | int:
     message = update.message or update.edited_message
     assert message is not None
 
     text = message.text
     assert text is not None
-    command, text = utils.split_command(text)
+    _command, query = utils.split_command(text)
 
-    if text == "" or text.isspace():
-        await message.reply_text("Напишите, пожалуйста, ваш запрос")
-        return consts.CONVERSATION_HANDLER_REPEAT
+    if not query:
+        has_reply = utils.get_performer_and_title_from_reply(message)
+        if not has_reply:
+            await message.reply_text("Напишите, пожалуйста, ваш запрос")
+            return consts.CONVERSATION_HANDLER_REPEAT
+        performer, title = has_reply
+        query = f"{performer} {title}"
 
-    limit = 10
     opts = {"extract_flat": "in_playlist", **utils.default_yt_dlp_opts()}
     with yt_dlp.YoutubeDL(opts) as ytdl:
         assert isinstance(ytdl, yt_dlp.YoutubeDL)
         response = await asyncio.to_thread(
-            ytdl.extract_info, f"ytsearch{limit}:{text}", download=False
+            ytdl.extract_info, f"ytsearch{SEARCH_LIMIT}:{query}", download=False
         )
 
     if len(response["entries"]) == 0:
