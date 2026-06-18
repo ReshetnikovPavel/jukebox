@@ -26,6 +26,8 @@ async def search_handler(
     assert text is not None
     _command, query = utils.split_command(text)
 
+    performer = None
+    title = None
     if not query:
         has_reply = utils.get_performer_and_title_from_reply(message)
         if not has_reply:
@@ -37,7 +39,7 @@ async def search_handler(
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     tracks = await asyncio.to_thread(ytmusic.search, query, filter="songs")
 
-    if track := utils.get_song_from_search_response(tracks, performer, title):
+    if performer and title and (track := utils.get_song_from_search_response(tracks, performer, title)):
         video_id = track["videoId"]
         match callback_const:
             case consts.SEARCH_CALLBACK:
