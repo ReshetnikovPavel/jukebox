@@ -37,7 +37,7 @@ async def search_handler(
     ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     tracks = await asyncio.to_thread(ytmusic.search, query, filter="songs")
 
-    if track := utils.get_exact_song_from_search_response(tracks, performer, title):
+    if track := utils.get_song_from_search_response(tracks, performer, title):
         video_id = track["videoId"]
         match callback_const:
             case consts.SEARCH_CALLBACK:

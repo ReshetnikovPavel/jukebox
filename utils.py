@@ -67,7 +67,7 @@ def get_performer_and_title_from_reply(message: Message) -> tuple[str, str] | No
     return performer, title
 
 
-def get_exact_song_from_search_response(
+def get_song_from_search_response(
     tracks: list[dict[str, Any]],
     artist: str,
     title: str,
