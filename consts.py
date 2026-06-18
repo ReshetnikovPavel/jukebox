@@ -9,6 +9,7 @@ HELP_COMMAND = "help"
 LYRICS_COMMAND = "lyrics"
 VIDEO_COMMAND = "video"
 ALBUM_COMMAND = "album"
+TRACK_COMMAND = "track"
 
 CONVERSATION_HANDLER_REPEAT = "conversation_handler_repeat"
 

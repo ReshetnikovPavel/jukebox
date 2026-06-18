@@ -1,3 +1,4 @@
+from typing import Any
 import telegram
 from telegram import CallbackQuery, Message
 
@@ -15,10 +16,10 @@ def split_command(s: str) -> tuple[str | None, str]:
     if s.startswith("/"):
         splits = s.split(maxsplit=1)
         if len(splits) == 1:
-            return (splits[0], "")
+            return (splits[0].strip(), "")
         else:
-            return (splits[0], splits[1])
-    return (None, s)
+            return (splits[0].strip(), splits[1].strip())
+    return (None, s.strip())
 
 
 def chunks(s: str, chunk_len: int) -> list[str]:
@@ -48,3 +49,31 @@ def get_selected_button_text(callback_query: CallbackQuery, id: str) -> str | No
 
         if data.find(id) != -1:
             return button.text
+
+
+def get_performer_and_title_from_reply(message: Message) -> tuple[str, str] | None:
+    reply = message.reply_to_message
+    if reply is None:
+        return None
+    audio = reply.audio
+    if audio is None:
+        return None
+    title = audio.title
+    if title is None:
+        return None
+    performer = audio.performer
+    if performer is None:
+        return None
+    return performer, title
+
+
+def get_exact_song_from_search_response(
+    tracks: list[dict[str, Any]],
+    artist: str,
+    title: str,
+) -> dict[str, Any] | None:
+    artists = set(artist.split(", "))
+    for track in tracks:
+        track_artists = {a["name"] for a in track["artists"]}
+        if track["title"] == title and track_artists == artists:
+            return track
