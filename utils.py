@@ -1,3 +1,4 @@
+import os
 from typing import Any
 import telegram
 from telegram import CallbackQuery, Message
@@ -59,11 +60,20 @@ def get_performer_and_title_from_reply(message: Message) -> tuple[str, str] | No
     if audio is None:
         return None
     title = audio.title
-    if title is None:
-        return None
     performer = audio.performer
-    if performer is None:
+
+    if audio.file_name and (title is None or performer is None):
+        name, _ext = os.path.splitext(audio.file_name)
+        for sep in [consts.SEP, "-"]:
+            if sep in name:
+                parts = name.split(sep, maxsplit=1)
+                performer = performer or parts[0].strip()
+                title = title or parts[1].strip()
+                break
+
+    if title is None or performer is None:
         return None
+
     return performer, title
 
 
