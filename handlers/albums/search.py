@@ -49,7 +49,11 @@ async def search_handler(
     albums = await asyncio.to_thread(
         ytmusic.search, query, filter="albums", limit=SEARCH_LIMIT
     )
+
     albums = albums[:SEARCH_LIMIT]
+    if len(albums) == 0:
+        await message.reply_text("Ничего не нашлось 😭")
+        return ConversationHandler.END
 
     keyboard = [
         [
