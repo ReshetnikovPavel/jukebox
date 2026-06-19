@@ -3,3 +3,13 @@ services:
     build: .
     container_name: jukebox
     restart: unless-stopped
+    depends_on:
+      - bgutil-provider
+
+  bgutil-provider:
+    image: brainicism/bgutil-ytdlp-pot-provider
+    container_name: bgutil-provider
+    restart: unless-stopped
+    init: true
+    ports:
+      - "4416:4416"

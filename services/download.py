@@ -1,5 +1,3 @@
-from services.metadata import TrackMetadata
-import typing
 import asyncio
 import os
 import subprocess
@@ -16,6 +14,7 @@ import consts
 import handlers
 import services
 import utils
+from services.metadata import TrackMetadata
 
 
 async def download_and_send_track(
@@ -105,14 +104,10 @@ async def download_track(
             "outtmpl": webm_path,
             **utils.default_yt_dlp_opts(),
         }
-        try:
-            with yt_dlp.YoutubeDL(opts) as ytdl:
-                await asyncio.to_thread(ytdl.download, link)
-        except yt_dlp.DownloadError as e:
-            await handlers.error.report(e, update, context)
-            del opts["cookiefile"]
-            with yt_dlp.YoutubeDL(opts) as ytdl:
-                await asyncio.to_thread(ytdl.download, link)
+
+        with yt_dlp.YoutubeDL(opts) as ytdl:
+            await asyncio.to_thread(ytdl.download, link)
+
         mp3_path = os.path.join(tmp_dir, f"{filename_without_ext}.mp3")
         subprocess.check_call(["ffmpeg", "-i", webm_path, mp3_path])
 
