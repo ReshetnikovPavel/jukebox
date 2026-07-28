@@ -2,7 +2,10 @@ FROM python:3.14
 
 WORKDIR /app
 
-RUN apt update && apt upgrade -y && apt install nodejs ffmpeg -y && rm -rf /var/lib/apt/lists/*
+RUN apt update && apt install nodejs ffmpeg curl -y  --no-install-recommends && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://deno.land/install.sh | sh && \
+    mv /root/.deno/bin/deno /usr/local/bin/deno
 
 COPY pyproject.toml .
 
