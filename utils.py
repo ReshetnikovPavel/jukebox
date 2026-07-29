@@ -1,5 +1,6 @@
 import os
 from typing import Any
+
 import telegram
 from telegram import CallbackQuery, Message
 
@@ -8,7 +9,7 @@ import consts
 
 def default_yt_dlp_opts() -> dict:
     return {
-        "js_runtimes": {"node": {}},
+        "js_runtimes": {"deno": {}, "node": {}},
     }
 
 
