@@ -12,6 +12,7 @@ browser.json
 cookies-youtube-com.txt
 sync.sh
 rebuild-docker.sh
+jukebox.db
 
 # Virtual environments
 .venv
