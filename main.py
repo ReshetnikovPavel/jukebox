@@ -6,6 +6,7 @@ from typing import Any
 import dotenv
 from telegram import Update
 from telegram.ext import (
+    AIORateLimiter,
     Application,
     ApplicationBuilder,
     CallbackQueryHandler,
@@ -57,7 +58,13 @@ if __name__ == "__main__":
 
     cache.init_db()
 
-    application = ApplicationBuilder().token(token).concurrent_updates(True).build()
+    application = (
+        ApplicationBuilder()
+        .token(token)
+        .concurrent_updates(True)
+        .rate_limiter(AIORateLimiter())
+        .build()
+    )
 
     application.add_error_handler(handlers.error_handler)
 

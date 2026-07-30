@@ -3,6 +3,15 @@ revision = 3
 requires-python = ">=3.14"
 
 [[package]]
+name = "aiolimiter"
+version = "1.2.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/f1/23/b52debf471f7a1e42e362d959a3982bdcb4fe13a5d46e63d28868807a79c/aiolimiter-1.2.1.tar.gz", hash = "sha256:e02a37ea1a855d9e832252a105420ad4d15011505512a1a1d814647451b5cca9", size = 7185, upload-time = "2024-12-08T15:31:51.496Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f3/ba/df6e8e1045aebc4778d19b8a3a9bc1808adb1619ba94ca354d9ba17d86c3/aiolimiter-1.2.1-py3-none-any.whl", hash = "sha256:d3f249e9059a20badcb56b61601a83556133655c11d1eb3dd3e04ff069e5f3c7", size = 6711, upload-time = "2024-12-08T15:31:49.874Z" },
+]
+
+[[package]]
 name = "anyio"
 version = "4.12.0"
 source = { registry = "https://pypi.org/simple" }
@@ -195,7 +204,7 @@ dependencies = [
     { name = "dotenv" },
     { name = "music-tag" },
     { name = "pillow" },
-    { name = "python-telegram-bot" },
+    { name = "python-telegram-bot", extra = ["rate-limiter"] },
     { name = "validators" },
     { name = "youtube-title-parse" },
     { name = "yt-dlp", extra = ["default"] },
@@ -208,7 +217,7 @@ requires-dist = [
     { name = "dotenv", specifier = ">=0.9.9" },
     { name = "music-tag", specifier = ">=0.4.3" },
     { name = "pillow", specifier = ">=12.3.0" },
-    { name = "python-telegram-bot", specifier = ">=22.5" },
+    { name = "python-telegram-bot", extras = ["rate-limiter"], specifier = ">=22.5" },
     { name = "validators", specifier = ">=0.35.0" },
     { name = "youtube-title-parse", specifier = ">=1.0.0" },
     { name = "yt-dlp", extras = ["default"], specifier = ">=2025.12.8" },
@@ -330,6 +339,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/0b/6b/400f88e5c29a270c1c519a3ca8ad0babc650ec63dbfbd1b73babf625ed54/python_telegram_bot-22.5.tar.gz", hash = "sha256:82d4efd891d04132f308f0369f5b5929e0b96957901f58bcef43911c5f6f92f8", size = 1488269, upload-time = "2025-09-27T13:50:27.879Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bc/c3/340c7520095a8c79455fcf699cbb207225e5b36490d2b9ee557c16a7b21b/python_telegram_bot-22.5-py3-none-any.whl", hash = "sha256:4b7cd365344a7dce54312cc4520d7fa898b44d1a0e5f8c74b5bd9b540d035d16", size = 730976, upload-time = "2025-09-27T13:50:25.93Z" },
+]
+
+[package.optional-dependencies]
+rate-limiter = [
+    { name = "aiolimiter" },
 ]
 
 [[package]]
