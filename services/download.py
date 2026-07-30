@@ -87,6 +87,9 @@ def __get_artist_title(
     return (artist, title)
 
 
+DOWNLOAD_SEMAPHORE = asyncio.Semaphore(2)
+
+
 @asynccontextmanager
 async def download_track(
     video_id: str,
@@ -113,17 +116,20 @@ async def download_track(
             **utils.default_yt_dlp_opts(),
         }
 
-        try:
-            with yt_dlp.YoutubeDL(opts) as ytdl:
-                await asyncio.to_thread(ytdl.download, link)
-        except Exception as e:
-            await handlers.error.report(e, update, context)
-            opts["cookiefile"] = consts.YT_COOKIES_PATH
-            with yt_dlp.YoutubeDL(opts) as ytdl:
-                await asyncio.to_thread(ytdl.download, link)
+        async with DOWNLOAD_SEMAPHORE:
+            try:
+                with yt_dlp.YoutubeDL(opts) as ytdl:
+                    await asyncio.to_thread(ytdl.download, link)
+            except Exception as e:
+                await handlers.error.report(e, update, context)
+                opts["cookiefile"] = consts.YT_COOKIES_PATH
+                with yt_dlp.YoutubeDL(opts) as ytdl:
+                    await asyncio.to_thread(ytdl.download, link)
 
         mp3_path = os.path.join(tmp_dir, f"{filename_without_ext}.mp3")
-        subprocess.check_call(["ffmpeg", "-i", webm_path, mp3_path])
+        await asyncio.to_thread(
+            subprocess.check_call, ["ffmpeg", "-i", webm_path, mp3_path]
+        )
 
         try:
             yield mp3_path
