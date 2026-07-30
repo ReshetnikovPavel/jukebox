@@ -7,6 +7,7 @@ from telegram.ext import ContextTypes
 import consts
 import handlers.songs
 import services
+from services import cache
 from services.metadata import TrackMetadata
 from utils import get_selected_button_text
 
@@ -28,6 +29,15 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await handlers.songs.download_handler(update, context, browse_id)
         return
 
+    songs = get_songs(callback_query)
+    file_ids_in_cache = [await cache.get_file_id(song.video_id) for song in songs]
+    if all(file_ids_in_cache):
+        for file_id in file_ids_in_cache:
+            assert file_id is not None
+            await context.bot.send_audio(chat.id, file_id)
+            continue
+        return
+
     download_album_message = await context.bot.send_message(
         chat.id, "Загружаю все треки из альбома"
     )
@@ -43,7 +53,11 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await handlers.error.report(e, update, context)
     await metadata_message.delete()
 
-    for song in get_songs(callback_query):
+    for song, file_id in zip(songs, file_ids_in_cache):
+        if file_id:
+            await context.bot.send_audio(chat.id, file_id)
+            continue
+
         async with services.download_track(
             song.video_id, song.artist, song.title, update, context
         ) as audio_path:
@@ -59,13 +73,17 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 await handlers.error.report(e, update, context)
 
-            await context.bot.send_audio(
+            res = await context.bot.send_audio(
                 chat.id,
                 audio_path,
                 title=song.title,
                 performer=song.artist,
                 write_timeout=3600,
             )
+            assert res.audio is not None
+            if meta_by_title:
+                await cache.add_track(song.video_id, res.audio.file_id)
+
     await download_album_message.delete()
 
 
