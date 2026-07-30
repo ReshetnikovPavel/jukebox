@@ -5,6 +5,10 @@ services:
     restart: unless-stopped
     depends_on:
       - bgutil-provider
+    environment:
+      SQLITE_PATH: /data/jukebox.db
+    volumes:
+      - data:/data
 
   bgutil-provider:
     image: brainicism/bgutil-ytdlp-pot-provider
@@ -13,3 +17,6 @@ services:
     init: true
     ports:
       - "4416:4416"
+
+volumes:
+  data:

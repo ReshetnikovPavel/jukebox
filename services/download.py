@@ -14,6 +14,7 @@ import consts
 import handlers
 import services
 import utils
+from services import cache
 from services.metadata import TrackMetadata
 
 
@@ -26,7 +27,11 @@ async def download_and_send_track(
     artist: str | None = None,
     title: str | None = None,
     parse_video_title: bool = False,
-):
+) -> None:
+    if file_id := await cache.get_file_id(video_id):
+        await context.bot.send_audio(chat_id, file_id)
+        return
+
     try:
         metadata = await services.get_metadata_by_video_id(video_id, browse_id)
     except Exception as e:
@@ -51,9 +56,12 @@ async def download_and_send_track(
             )
             await handlers.error.report(e, update, context)
 
-        await context.bot.send_audio(
+        res = await context.bot.send_audio(
             chat_id, audio_path, title=title, performer=artist, write_timeout=3600
         )
+        assert res.audio is not None
+        if metadata is not None:
+            await cache.add_track(video_id, res.audio.file_id)
 
 
 def __get_artist_title(

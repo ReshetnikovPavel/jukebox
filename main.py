@@ -1,6 +1,7 @@
 import logging
 import os
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 import dotenv
 from telegram import Update
@@ -20,6 +21,7 @@ import handlers
 import handlers.albums
 import handlers.songs
 import handlers.video
+from services import cache
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -52,6 +54,8 @@ if __name__ == "__main__":
     token = os.environ.get(consts.TG_TOKEN_VAR)
     if token is None:
         raise Exception(f"{consts.TG_TOKEN_VAR} env variable is not present")
+
+    cache.init_db()
 
     application = ApplicationBuilder().token(token).concurrent_updates(True).build()
 
