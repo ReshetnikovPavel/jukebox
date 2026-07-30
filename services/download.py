@@ -113,8 +113,14 @@ async def download_track(
             **utils.default_yt_dlp_opts(),
         }
 
-        with yt_dlp.YoutubeDL(opts) as ytdl:
-            await asyncio.to_thread(ytdl.download, link)
+        try:
+            with yt_dlp.YoutubeDL(opts) as ytdl:
+                await asyncio.to_thread(ytdl.download, link)
+        except Exception as e:
+            await handlers.error.report(e, update, context)
+            opts["cookiefile"] = consts.YT_COOKIES_PATH
+            with yt_dlp.YoutubeDL(opts) as ytdl:
+                await asyncio.to_thread(ytdl.download, link)
 
         mp3_path = os.path.join(tmp_dir, f"{filename_without_ext}.mp3")
         subprocess.check_call(["ffmpeg", "-i", webm_path, mp3_path])
