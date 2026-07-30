@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from types import GeneratorType
 
@@ -29,7 +30,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await handlers.songs.download_handler(update, context, browse_id)
         return
 
-    songs = get_songs(callback_query)
+    songs = list(get_songs(callback_query))
     file_ids_in_cache = [await cache.get_file_id(song.video_id) for song in songs]
     if all(file_ids_in_cache):
         for file_id in file_ids_in_cache:
