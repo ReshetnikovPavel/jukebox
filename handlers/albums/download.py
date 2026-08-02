@@ -1,9 +1,8 @@
-from telegram.error import TelegramError
-import logging
 from dataclasses import dataclass
 from types import GeneratorType
 
 from telegram import CallbackQuery, Message, Update
+from telegram.error import TelegramError
 from telegram.ext import ContextTypes
 
 import consts
