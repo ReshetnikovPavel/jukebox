@@ -69,11 +69,13 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 else:
                     track_meta = await services.get_metadata_by_video_id(song.video_id)
                 services.write_metadata(track_meta, audio_path)
+                has_written_metadata = True
             except Exception as e:
                 await context.bot.send_message(
                     chat.id, "Трек загрузился, но не получилось записать метадату 😭"
                 )
                 await handlers.error.report(e, update, context)
+                has_written_metadata = False
 
             try:
                 res = await context.bot.send_audio(
@@ -84,7 +86,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     write_timeout=3600,
                 )
                 assert res.audio is not None
-                if meta_by_title:
+                if has_written_metadata:
                     await cache.add_track(song.video_id, res.audio.file_id)
             except TelegramError as e:
                 await context.bot.send_message(
