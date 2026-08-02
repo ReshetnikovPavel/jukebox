@@ -1,3 +1,4 @@
+from telegram.error import TelegramError
 import logging
 from dataclasses import dataclass
 from types import GeneratorType
@@ -74,16 +75,22 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 await handlers.error.report(e, update, context)
 
-            res = await context.bot.send_audio(
-                chat.id,
-                audio_path,
-                title=song.title,
-                performer=song.artist,
-                write_timeout=3600,
-            )
-            assert res.audio is not None
-            if meta_by_title:
-                await cache.add_track(song.video_id, res.audio.file_id)
+            try:
+                res = await context.bot.send_audio(
+                    chat.id,
+                    audio_path,
+                    title=song.title,
+                    performer=song.artist,
+                    write_timeout=3600,
+                )
+                assert res.audio is not None
+                if meta_by_title:
+                    await cache.add_track(song.video_id, res.audio.file_id)
+            except TelegramError as e:
+                await context.bot.send_message(
+                    chat.id, "Трек загрузился, но есть какая-то проблема с телеграмом 😭"
+                )
+                await handlers.error.report(e, update, context)
 
     await download_album_message.delete()
 
