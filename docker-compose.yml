@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     depends_on:
       - bgutil-provider
+    env_file: .env.prod
     environment:
       SQLITE_PATH: /data/jukebox.db
     volumes:

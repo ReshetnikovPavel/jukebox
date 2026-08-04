@@ -51,7 +51,8 @@ def add_query_handler(
 
 
 if __name__ == "__main__":
-    dotenv.load_dotenv()
+    if not dotenv.load_dotenv():
+        logging.info(".env file not found, using system environment variables")
     token = os.environ.get(consts.TG_TOKEN_VAR)
     if token is None:
         raise Exception(f"{consts.TG_TOKEN_VAR} env variable is not present")
