@@ -1,3 +1,4 @@
+from typing import Any
 import asyncio
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
@@ -36,12 +37,12 @@ async def search_handler(
         performer, _ = has_reply
         query = performer
     else:
-        performer = None
+        performer = ""
 
     artists = await asyncio.to_thread(ytmusic.search, query, filter="artists")
-    if len(artists) == 1 or performer and :
+    if artist := get_artist(performer, artists):
         await services.get_and_send_artist(
-            ytmusic, artists[0]["browseId"], chat.id, context
+            ytmusic, artist["browseId"], chat.id, context
         )
         return ConversationHandler.END
 
@@ -64,3 +65,14 @@ async def search_handler(
     await message.reply_text("Выберите исполнителя", reply_markup=reply_markup)
 
     return ConversationHandler.END
+
+
+def get_artist(name: str, artists: list[dict[str, Any]]) -> dict[str, Any] | None:
+    if not name and len(artists) == 1:
+        return artists[0]
+
+    for artist in artists:
+        print(artist)
+        if artist["artist"] == name:
+            return artist
+    return None
