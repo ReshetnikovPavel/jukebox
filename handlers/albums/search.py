@@ -28,7 +28,7 @@ async def search_handler(
     if not query:
         has_reply = utils.get_performer_and_title_from_reply(message)
         if not has_reply:
-            await message.reply_text("Напишите, пожалуйста, ваш запрос")
+            await message.reply_text("Напишите, пожалуйста, ваш запрос\n\nИспользуйте /cancel для отмены")
             return consts.CONVERSATION_HANDLER_REPEAT
 
         performer, track_title = has_reply
