@@ -30,15 +30,20 @@ async def search_handler(
     if not query:
         has_reply = utils.get_performer_and_title_from_reply(message)
         if not has_reply:
-            await message.reply_text("Напишите, пожалуйста, ваш запрос\n\nИспользуйте /cancel для отмены")
+            await message.reply_text(
+                "Напишите, пожалуйста, ваш запрос\n\nИспользуйте /cancel для отмены"
+            )
             return consts.CONVERSATION_HANDLER_REPEAT
 
         performer, track_title = has_reply
         query = f"{performer} {track_title}"
 
     artists = await asyncio.to_thread(ytmusic.search, query, filter="artists")
-    if len(artists) == 1 and artists[0]["artist"]["name"] == performer:
-        # await services.get_artist(yt_music)
+    print(artists)
+    if len(artists) == 1 and artists[0]["artist"] == performer:
+        await services.get_and_send_artist(
+            ytmusic, artists[0]["browseId"], chat.id, context
+        )
         return ConversationHandler.END
 
     artists = artists[:SEARCH_LIMIT]

@@ -1,12 +1,8 @@
 import asyncio
-import typing
 from dataclasses import dataclass
-from typing import Any
 
 import music_tag
-import requests
 import ytmusicapi
-from requests.models import Response
 
 import consts
 import services
@@ -60,14 +56,14 @@ async def get_metadata_by_video_id(
     track = tracks[0]
     title = track["title"]
     if "album" not in track:
-        artwork = await __get_artwork(track["thumbnail"])
+        artwork = await services.get_widest_thumbnail(track["thumbnail"])
         metadata = __get_metadata_for_video(track, artwork)
         return metadata
 
     album_browse_id = album_browse_id or track["album"]["id"]
 
     album = await asyncio.to_thread(ytmusic.get_album, album_browse_id)
-    artwork = await __get_artwork(album["thumbnails"])
+    artwork = await services.get_widest_thumbnail(album["thumbnails"])
     lyrics = await services.get_lyrics_from_playlist(ytmusic, watch_playlist)
     for track in album["tracks"]:
         if track["title"] == title:
@@ -77,9 +73,9 @@ async def get_metadata_by_video_id(
 
 
 async def get_metadata_by_album_browse_id(browse_id: str) -> list[TrackMetadata]:
-    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     album = await asyncio.to_thread(ytmusic.get_album, browse_id)
-    artwork = await __get_artwork(album["thumbnails"])
+    artwork = await services.get_widest_thumbnail(album["thumbnails"])
 
     metadatas: list[TrackMetadata] = []
     for track in album["tracks"]:
@@ -133,17 +129,3 @@ def __get_metadata_for_song(
         artwork=artwork,
         total_tracks=total_tracks,
     )
-
-
-async def __get_artwork(thumbnails: list[dict[str, Any]]) -> bytes | None:
-    widest_thumbnail = max(thumbnails, key=lambda t: t["width"], default=None)
-    if widest_thumbnail is None:
-        return None
-
-    url = widest_thumbnail["url"]
-    image_response = await asyncio.to_thread(requests.get, url)
-    image_response = typing.cast(Response, image_response)
-    if not image_response.ok:
-        raise Exception("Unable to get artwork", image_response)
-
-    return image_response.content
