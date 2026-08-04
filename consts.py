@@ -10,6 +10,7 @@ LYRICS_COMMAND = "lyrics"
 VIDEO_COMMAND = "video"
 ALBUM_COMMAND = "album"
 TRACK_COMMAND = "track"
+ARTIST_COMMAND = "artist"
 
 CONVERSATION_HANDLER_REPEAT = "conversation_handler_repeat"
 
@@ -18,6 +19,11 @@ LYRICS_GET = "lyrics_get"
 ALBUM_GET = "album_get"
 ALBUM_DOWNLOAD = "album_download"
 VIDEO_DOWNLOAD = "video_download"
+ARTIST_GET = "artist_get"
+ARTIST_SONGS = "artist_songs"
+ARTIST_ALBUMS = "artist_albums"
+
+REPLACE_MESSAGE = "replace"
 
 SEP = '–'
 

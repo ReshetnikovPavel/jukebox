@@ -20,6 +20,7 @@ from telegram.ext import (
 import consts
 import handlers
 import handlers.albums
+import handlers.artists
 import handlers.songs
 import handlers.video
 from services import cache
@@ -73,6 +74,7 @@ if __name__ == "__main__":
     add_query_handler(application, consts.LYRICS_COMMAND, handlers.songs.search_lyrics_handler)
     add_query_handler(application, consts.VIDEO_COMMAND, handlers.video.search_handler)
     add_query_handler(application, consts.ALBUM_COMMAND, handlers.albums.search_handler)
+    add_query_handler(application, consts.ARTIST_COMMAND, handlers.artists.search_handler)
 
     application.add_handler(CommandHandler(consts.START_COMMAND, handlers.start_handler))
     application.add_handler(CommandHandler(consts.HELP_COMMAND, handlers.help_handler))

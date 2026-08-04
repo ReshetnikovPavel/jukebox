@@ -2,7 +2,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 import consts
-from handlers import albums, songs, video
+from handlers import albums, artists, songs, video
 
 
 async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -27,5 +27,11 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return await video.download_handler(update, context)
         case consts.ALBUM_DOWNLOAD | consts.DEPRECATED_GET_CALLBACK_ALBUMS:
             return await albums.download_handler(update, context)
+        case consts.ARTIST_GET:
+            return await artists.get_handler(update, context)
+        case consts.ARTIST_ALBUMS:
+            return await artists.albums_handler(update, context)
+        case consts.ARTIST_SONGS:
+            return await artists.songs_handler(update, context)
         case _:
             raise Exception("Unknown callback_data", callback_data)
