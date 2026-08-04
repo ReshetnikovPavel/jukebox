@@ -1,5 +1,5 @@
-from yt_dlp.utils import DownloadError
 import asyncio
+import json
 import os
 import subprocess
 import tempfile
@@ -10,6 +10,7 @@ import youtube_title_parse
 import yt_dlp
 from telegram import Update
 from telegram.ext import ContextTypes
+from yt_dlp.utils import DownloadError
 
 import consts
 import handlers
@@ -136,3 +137,39 @@ async def download_track(
             yield mp3_path
         finally:
             await download_message.delete()
+
+
+async def download_and_send_audio_from_video(
+    link: str,
+    context: ContextTypes.DEFAULT_TYPE,
+    chat_id: int,
+) -> None:
+    download_message = await context.bot.send_message(
+        chat_id, "Скачиваю аудио из видео"
+    )
+
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        out_path = os.path.join(tmp_dir, "audio.mp3")
+        opts = {
+            "extract_audio": True,
+            "writeinfojson": True,
+            "noplaylist": True,
+            "format": "bestaudio",
+            "outtmpl": out_path,
+            **utils.default_yt_dlp_opts(),
+        }
+
+        async with DOWNLOAD_SEMAPHORE:
+            with yt_dlp.YoutubeDL(opts) as ytdl:
+                await asyncio.to_thread(ytdl.download, link)
+
+        with open(out_path + ".info.json") as metadata_file:
+            metadata = json.load(metadata_file)
+            title = metadata["title"]
+            performer = metadata["uploader"]
+
+        await context.bot.send_audio(
+            chat_id, out_path, title=title, performer=performer
+        )
+
+    await download_message.delete()

@@ -1,5 +1,9 @@
 from .album import get_album, send_album  # noqa: F401
-from .download import download_and_send_track, download_track  # noqa: F401
+from .download import (
+    download_and_send_audio_from_video,
+    download_and_send_track,
+    download_track,
+)  # noqa: F401
 from .lyrics import (  # noqa: F401
     get_lyrics_from_playlist,
     get_lyrics_from_video_id,
