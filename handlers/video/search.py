@@ -43,7 +43,7 @@ async def search_handler(
         [
             InlineKeyboardButton(
                 f"{video['channel']} {consts.SEP} {video['title']}",
-                callback_data=f"{consts.SEARCH_CALLBACK_VIDEO} {video['id']}",
+                callback_data=f"{consts.VIDEO_DOWNLOAD} {video['id']}",
             )
         ]
         for video in response["entries"]

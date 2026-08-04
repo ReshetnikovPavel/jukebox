@@ -28,7 +28,7 @@ async def send_album(
         [
             InlineKeyboardButton(
                 f"{', '.join(a['name'] for a in t['artists'])} {consts.SEP} {t['title']}",
-                callback_data=f"{consts.GET_CALLBACK_ALBUMS} {video_id}",
+                callback_data=f"{consts.SONG_DOWNLOAD} {video_id}",
             )
         ]
         for (t, video_id) in album
@@ -37,7 +37,7 @@ async def send_album(
         [
             InlineKeyboardButton(
                 "Скачать весь альбом",
-                callback_data=f"{consts.GET_CALLBACK_ALBUMS} {browse_id}",
+                callback_data=f"{consts.ALBUM_DOWNLOAD} {browse_id}",
             )
         ]
     )

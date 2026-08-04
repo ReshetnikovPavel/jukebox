@@ -14,7 +14,7 @@ SEARCH_LIMIT = 10
 async def search_handler(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
-    callback_const=consts.SEARCH_CALLBACK,
+    callback_const=consts.SONG_DOWNLOAD,
 ) -> str | int:
     chat = update.effective_chat
     assert chat is not None
@@ -42,11 +42,11 @@ async def search_handler(
     if performer and title and (track := utils.get_song_from_search_response(tracks, performer, title)):
         video_id = track["videoId"]
         match callback_const:
-            case consts.SEARCH_CALLBACK:
+            case consts.SONG_DOWNLOAD:
                 await services.download_and_send_track(
                     video_id, update, context, chat.id, artist=performer, title=title
                 )
-            case consts.SEARCH_CALLBACK_LYRICS:
+            case consts.LYRICS_GET:
                 lyrics = await services.get_lyrics_from_video_id(ytmusic, video_id)
                 await services.send_lyrics(
                     lyrics, performer, title, context.bot, chat.id
@@ -77,5 +77,5 @@ async def search_handler(
 
 async def search_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     return await search_handler(
-        update, context, callback_const=consts.SEARCH_CALLBACK_LYRICS
+        update, context, callback_const=consts.LYRICS_GET
     )

@@ -13,10 +13,16 @@ TRACK_COMMAND = "track"
 
 CONVERSATION_HANDLER_REPEAT = "conversation_handler_repeat"
 
-SEARCH_CALLBACK = "search_callback"
-SEARCH_CALLBACK_LYRICS = "search_callback_lyrics"
-SEARCH_CALLBACK_ALBUMS = "search_callback_albums"
-SEARCH_CALLBACK_VIDEO = "search_callback_video"
-GET_CALLBACK_ALBUMS = "get_callback_albums"
+SONG_DOWNLOAD = "song_download"
+LYRICS_GET = "lyrics_get"
+ALBUM_GET = "album_get"
+ALBUM_DOWNLOAD = "album_download"
+VIDEO_DOWNLOAD = "video_download"
 
 SEP = '–'
+
+DEPRECATED_SEARCH_CALLBACK = "search_callback"
+DEPRECATED_SEARCH_CALLBACK_LYRICS = "search_callback_lyrics"
+DEPRECATED_SEARCH_CALLBACK_ALBUMS = "search_callback_albums"
+DEPRECATED_SEARCH_CALLBACK_VIDEO = "search_callback_video"
+DEPRECATED_GET_CALLBACK_ALBUMS = "get_callback_albums"

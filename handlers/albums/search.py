@@ -59,7 +59,7 @@ async def search_handler(
         [
             InlineKeyboardButton(
                 f"{', '.join(artist['name'] for artist in a['artists'])} {consts.SEP} {a['title']}",
-                callback_data=f"{consts.SEARCH_CALLBACK_ALBUMS} {a['browseId']}",
+                callback_data=f"{consts.ALBUM_GET} {a['browseId']}",
             )
         ]
         for a in albums
