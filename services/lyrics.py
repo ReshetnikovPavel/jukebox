@@ -2,17 +2,17 @@ import asyncio
 import html
 import typing
 
-import ytmusicapi
 from telegram import Bot
 from telegram.constants import ParseMode
 from ytmusicapi.models import Lyrics
 
 import consts
 import utils
+from services.yt_cache import CachedYTMusic as YTMusic
 
 
 async def get_lyrics_from_video_id(
-    ytmusic: ytmusicapi.YTMusic, video_id: str
+    ytmusic: YTMusic, video_id: str
 ) -> str | None:
     watch_playlist = await asyncio.to_thread(
         ytmusic.get_watch_playlist, video_id, limit=1
@@ -21,7 +21,7 @@ async def get_lyrics_from_video_id(
 
 
 async def get_lyrics_from_playlist(
-    ytmusic: ytmusicapi.YTMusic, watch_playlist: dict
+    ytmusic: YTMusic, watch_playlist: dict
 ) -> str | None:
     lyrics_id = watch_playlist["lyrics"]
     if lyrics_id is None:

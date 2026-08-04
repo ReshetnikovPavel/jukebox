@@ -1,9 +1,9 @@
-import ytmusicapi
 from telegram import Update
 from telegram.ext import ContextTypes
 
 import consts
 import services
+from services.yt_cache import CachedYTMusic as YTMusic
 
 
 async def get_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -18,5 +18,5 @@ async def get_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     artist_id = callback_data.split(maxsplit=1)[1]
 
-    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     await services.get_and_send_artist(ytmusic, artist_id, chat.id, context)

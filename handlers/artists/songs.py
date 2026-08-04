@@ -1,10 +1,10 @@
 import asyncio
 
-import ytmusicapi
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 import consts
+from services.yt_cache import CachedYTMusic as YTMusic
 
 LIMIT = 10
 
@@ -27,7 +27,7 @@ async def songs_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     from_id = parts[2]
     replace = parts[3] if len(parts) > 3 else None
 
-    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     artist = await asyncio.to_thread(ytmusic.get_artist, artist_id)
 
     songs_browse_id = artist["songs"]["browseId"]

@@ -3,10 +3,10 @@ import typing
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
-from ytmusicapi import YTMusic
 
 import consts
 import services
+from services.yt_cache import CachedYTMusic as YTMusic
 
 
 async def get_and_send_artist(

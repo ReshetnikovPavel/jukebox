@@ -1,10 +1,10 @@
 import asyncio
 
-import ytmusicapi
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 
 import consts
+from services.yt_cache import CachedYTMusic as YTMusic
 
 
 async def albums_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -19,7 +19,7 @@ async def albums_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     artist_id = callback_data.rsplit(maxsplit=1)[1]
 
-    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     artist = await asyncio.to_thread(ytmusic.get_artist, artist_id)
 
     albums = artist["albums"]["results"]

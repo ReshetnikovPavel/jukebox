@@ -2,10 +2,10 @@ import asyncio
 from dataclasses import dataclass
 
 import music_tag
-import ytmusicapi
 
 import consts
 import services
+from services.yt_cache import CachedYTMusic as YTMusic
 
 
 @dataclass
@@ -46,7 +46,7 @@ def write_metadata(metadata: TrackMetadata, filepath: str) -> None:
 async def get_metadata_by_video_id(
     video_id: str, album_browse_id: str | None = None
 ) -> TrackMetadata:
-    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     watch_playlist = await asyncio.to_thread(
         ytmusic.get_watch_playlist, video_id, limit=1
     )

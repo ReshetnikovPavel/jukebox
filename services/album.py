@@ -5,9 +5,9 @@ from typing import Any
 
 from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.constants import ParseMode
-from ytmusicapi import YTMusic
 
 import consts
+from services.yt_cache import CachedYTMusic as YTMusic
 
 Track = dict[str, Any]
 Album = list[tuple[Track, str]]
