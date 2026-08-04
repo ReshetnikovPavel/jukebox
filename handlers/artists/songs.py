@@ -1,9 +1,11 @@
 import asyncio
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.error import TelegramError, TimedOut
 from telegram.ext import ContextTypes
 
 import consts
+from handlers.error import report
 from services.yt_cache import CachedYTMusic as YTMusic
 
 LIMIT = 10
@@ -82,9 +84,14 @@ async def songs_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     if replace:
-        await context.bot.edit_message_reply_markup(
-            chat.id, message.message_id, reply_markup=reply_markup
-        )
+        try:
+            await context.bot.edit_message_reply_markup(
+                chat.id, message.message_id, reply_markup=reply_markup
+            )
+        except TelegramError as e:
+            await report(e, update, context, "WARN: Скорее всего дважды нажали")
+        except TimedOut as e:
+            await report(e, update, context, "WARN: Скорее всего дважды нажали")
     else:
         await context.bot.send_message(
             chat.id, "Выберите трек", reply_markup=reply_markup
