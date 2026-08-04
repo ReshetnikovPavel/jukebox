@@ -15,6 +15,7 @@ async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 - Напишите команду /video чтобы найти видео на Youtube и скачать его аудио
 - Напишите команду /lyrics чтобы найти текст песни
 - Напишите команду /album чтобы найти альбом для скачивания
+- Напишите команду /artist чтобы найти исполнителя
 - Напишите команду /help чтобы получить это сообщение
 
 Например:
@@ -22,5 +23,6 @@ async def help_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     https://www.youtube.com/watch?v=dQw4w9WgXcQ - я скачаю аудио с видео
     /video never gonna give you up - я отправлю список видео на Youtube
     /video - я попрошу тебя отправить мне запрос ответ, чтобы дальше найти видео
+    *Представьте, что вы делаете ответ на сообщение с аудио и пишите команду* /lyrics - отправит текст для аудио из выбранного сообщения
 """
     await context.bot.send_message(chat.id, text, disable_web_page_preview=True)
