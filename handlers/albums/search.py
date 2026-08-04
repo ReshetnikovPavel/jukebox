@@ -1,12 +1,12 @@
 import asyncio
 
-import ytmusicapi
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, ConversationHandler
 
 import consts
 import services
 import utils
+from services.yt_cache import CachedYTMusic as YTMusic
 
 SEARCH_LIMIT = 10
 
@@ -24,7 +24,7 @@ async def search_handler(
     assert text is not None
     _command, query = utils.split_command(text)
 
-    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     if not query:
         has_reply = utils.get_performer_and_title_from_reply(message)
         if not has_reply:

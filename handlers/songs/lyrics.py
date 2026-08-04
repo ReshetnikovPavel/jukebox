@@ -2,12 +2,12 @@ import asyncio
 import typing
 from typing import Any
 
-import ytmusicapi
 from telegram import Update
 from telegram.ext import ContextTypes
 
 import consts
 import services
+from services.yt_cache import CachedYTMusic as YTMusic
 
 
 async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -21,7 +21,7 @@ async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE)
     assert callback_data is not None
 
     video_id = callback_data.split(maxsplit=1)[1]
-    ytmusic = ytmusicapi.YTMusic(consts.YT_MUSIC_HEADERS_PATH)
+    ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
 
     watch_playlist = await asyncio.to_thread(
         ytmusic.get_watch_playlist, video_id, limit=1

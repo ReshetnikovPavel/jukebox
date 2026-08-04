@@ -33,12 +33,13 @@ async def search_handler(
             )
             return consts.CONVERSATION_HANDLER_REPEAT
 
-        performer, track_title = has_reply
-        query = f"{performer} {track_title}"
+        performer, _ = has_reply
+        query = performer
+    else:
+        performer = None
 
     artists = await asyncio.to_thread(ytmusic.search, query, filter="artists")
-    print(artists)
-    if len(artists) == 1:
+    if len(artists) == 1 or performer and :
         await services.get_and_send_artist(
             ytmusic, artists[0]["browseId"], chat.id, context
         )
