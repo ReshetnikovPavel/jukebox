@@ -56,11 +56,11 @@ async def report(
         )
 
         update_file = BytesIO(update_str.encode())
-        update_file.name = "Update"
+        update_file.name = "Update.txt"
         await context.bot.send_document(developer_chat_id, update_file)
 
         error_file = BytesIO("\n".join(traceback.format_exception(error)).encode())
-        error_file.name = "Error"
+        error_file.name = "Error.txt"
         await context.bot.send_document(developer_chat_id, error_file)
     else:
         logging.error(
