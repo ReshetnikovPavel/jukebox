@@ -1,3 +1,4 @@
+from yt_dlp.utils import DownloadError
 import asyncio
 import os
 import subprocess
@@ -36,7 +37,7 @@ async def download_and_send_track(
         metadata = await services.get_metadata_by_video_id(video_id, browse_id)
     except Exception as e:
         await context.bot.send_message(chat_id, "Не получилось найти метадату 😭")
-        await handlers.error.report(e, update, context)
+        await handlers.error.report(e, update, context, "WARN: Unable to get metadata, skipping")
         metadata = None
 
     (artist, title) = __get_artist_title(metadata, title, artist, parse_video_title)
@@ -54,7 +55,7 @@ async def download_and_send_track(
             await context.bot.send_message(
                 chat_id, "Трек загрузился, но не получилось записать метадату 😭"
             )
-            await handlers.error.report(e, update, context)
+            await handlers.error.report(e, update, context, "WARN: Unable to write metadata, skipping")
 
         res = await context.bot.send_audio(
             chat_id, audio_path, title=title, performer=artist, write_timeout=3600
@@ -120,8 +121,8 @@ async def download_track(
             try:
                 with yt_dlp.YoutubeDL(opts) as ytdl:
                     await asyncio.to_thread(ytdl.download, link)
-            except Exception as e:
-                await handlers.error.report(e, update, context)
+            except DownloadError as e:
+                await handlers.error.report(e, update, context, f"WARN: unable to download track {filename_without_ext}, trying again with cookies")
                 opts["cookiefile"] = consts.YT_COOKIES_PATH
                 with yt_dlp.YoutubeDL(opts) as ytdl:
                     await asyncio.to_thread(ytdl.download, link)

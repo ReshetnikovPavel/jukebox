@@ -51,7 +51,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         }
     except Exception as e:
         await context.bot.send_message(chat.id, "Не получилось найти метадату 😭")
-        await handlers.error.report(e, update, context)
+        await handlers.error.report(e, update, context, "WARN: Unable to get metadata, skipping")
     await metadata_message.delete()
 
     for song, file_id in zip(songs, file_ids_in_cache):
@@ -73,7 +73,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_message(
                     chat.id, "Трек загрузился, но не получилось записать метадату 😭"
                 )
-                await handlers.error.report(e, update, context)
+                await handlers.error.report(e, update, context, "WARN: Unable to write metadata, skipping")
                 has_written_metadata = False
 
             try:
@@ -91,7 +91,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 await context.bot.send_message(
                     chat.id, "Трек загрузился, но есть какая-то проблема с телеграмом 😭"
                 )
-                await handlers.error.report(e, update, context)
+                await handlers.error.report(e, update, context, "WARN: stopped waiting for telegram respond to audio upload")
 
     await download_album_message.delete()
 
