@@ -82,15 +82,12 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     audio_path,
                     title=song.title,
                     performer=song.artist,
-                    write_timeout=3600,
+                    write_timeout=6400,
                 )
                 assert res.audio is not None
                 if has_written_metadata:
                     await cache.add_track(song.video_id, res.audio.file_id)
             except TelegramError as e:
-                await context.bot.send_message(
-                    chat.id, "Трек загрузился, но есть какая-то проблема с телеграмом 😭"
-                )
                 await handlers.error.report(e, update, context, "WARN: stopped waiting for telegram respond to audio upload")
 
     await download_album_message.delete()

@@ -59,7 +59,7 @@ async def download_and_send_track(
             await handlers.error.report(e, update, context, "WARN: Unable to write metadata, skipping")
 
         res = await context.bot.send_audio(
-            chat_id, audio_path, title=title, performer=artist, write_timeout=3600
+            chat_id, audio_path, title=title, performer=artist, write_timeout=6400
         )
         assert res.audio is not None
         if metadata is not None:
