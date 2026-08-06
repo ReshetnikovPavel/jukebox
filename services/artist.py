@@ -15,13 +15,13 @@ async def get_and_send_artist(
     artist = await asyncio.to_thread(ytmusic.get_artist, artist_id)
 
     description = typing.cast(str, artist["description"] or "")
-    description = description.split(".", maxsplit=1)[0]
+    description = description.split("\n", maxsplit=1)[0]
+
     caption = []
     caption.append(artist['name'])
     if description:
         caption.append("\n\n")
         caption.append(description)
-        caption.append(".")
     caption = "".join(caption)
 
     artwork = await services.get_widest_thumbnail(artist["thumbnails"])
