@@ -1,5 +1,5 @@
-from typing import Any
 import asyncio
+from typing import Any
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes, ConversationHandler
@@ -72,7 +72,6 @@ def get_artist(name: str, artists: list[dict[str, Any]]) -> dict[str, Any] | Non
         return artists[0]
 
     for artist in artists:
-        print(artist)
         if artist["artist"] == name:
             return artist
     return None
