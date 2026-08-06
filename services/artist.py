@@ -8,6 +8,8 @@ import consts
 import services
 from services.yt_cache import CachedYTMusic as YTMusic
 
+TG_MAX_CAPTION_LEN = 1024
+
 
 async def get_and_send_artist(
     ytmusic: YTMusic, artist_id: str, chat_id: int, context: ContextTypes.DEFAULT_TYPE
@@ -23,6 +25,14 @@ async def get_and_send_artist(
         caption.append("\n\n")
         caption.append(description)
     caption = "".join(caption)
+
+    if len(caption) >= TG_MAX_CAPTION_LEN:
+        last_dot_index = caption.rfind('.', 0, TG_MAX_CAPTION_LEN)
+        if last_dot_index != -1:
+            caption = caption[:last_dot_index + 1]
+        else:
+            caption = caption[:TG_MAX_CAPTION_LEN]
+
 
     artwork = await services.get_widest_thumbnail(artist["thumbnails"])
 
