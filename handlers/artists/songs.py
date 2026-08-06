@@ -39,16 +39,16 @@ async def songs_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     tracks = playlist["tracks"]
 
+    if len(tracks) == 0:
+        await context.bot.send_message(chat.id, "Ничего не нашлось 😭")
+        return
+
     from_index = None
     for i, track in enumerate(tracks):
         if track["videoId"] == from_id:
             from_index = i
             break
     assert from_index is not None
-
-    if len(tracks) == 0:
-        await context.bot.send_message(chat.id, "Ничего не нашлось 😭")
-        return
 
     keyboard = [
         [
