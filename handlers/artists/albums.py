@@ -1,10 +1,12 @@
 import asyncio
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, Update
 from telegram.error import TelegramError, TimedOut
 from telegram.ext import ContextTypes
 
 import consts
+import services
+import services.paging
 from handlers.error import report
 from services.yt_cache import CachedYTMusic as YTMusic
 
@@ -42,45 +44,25 @@ async def albums_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await context.bot.send_message(chat.id, "Ничего не нашлось 😭")
         return
 
-    from_index = 0
-    for i, album in enumerate(albums):
-        if album["browseId"] == from_id:
-            from_index = i
-            break
+    reply_markup = services.paging.make_paging_keyboard(
+        albums,
+        "browseId",
+        from_id,
+        LIMIT,
+        lambda album: InlineKeyboardButton(
+            f"{artist['name']} {consts.SEP} {album['title']}",
+            callback_data=f"{consts.ALBUM_GET} {album['browseId']}",
+        ),
+        lambda from_id: InlineKeyboardButton(
+            "←",
+            callback_data=f"{consts.ARTIST_ALBUMS} {artist_id} {from_id} {consts.REPLACE_MESSAGE}",
+        ),
+        lambda from_id: InlineKeyboardButton(
+            "→",
+            callback_data=f"{consts.ARTIST_ALBUMS} {artist_id} {from_id} {consts.REPLACE_MESSAGE}",
+        ),
+    )
 
-    keyboard = [
-        [
-            InlineKeyboardButton(
-                f"{artist['name']} {consts.SEP} {album['title']}",
-                callback_data=f"{consts.ALBUM_GET} {album['browseId']}",
-            )
-        ]
-        for album in albums[from_index : from_index + LIMIT]
-    ]
-
-    paging_row = []
-    if from_id is not None and albums[0]["browseId"] != from_id:
-        prev_from_album = (
-            albums[from_index - LIMIT] if from_index > LIMIT else albums[0]
-        )
-        prev_from_id = prev_from_album["browseId"]
-        paging_row.append(
-            InlineKeyboardButton(
-                "←",
-                callback_data=f"{consts.ARTIST_ALBUMS} {artist_id} {prev_from_id} {consts.REPLACE_MESSAGE}",
-            )
-        )
-    if from_index + LIMIT < len(albums):
-        next_from_id = albums[from_index + LIMIT]["browseId"]
-        paging_row.append(
-            InlineKeyboardButton(
-                "→",
-                callback_data=f"{consts.ARTIST_ALBUMS} {artist_id} {next_from_id} {consts.REPLACE_MESSAGE}",
-            )
-        )
-    keyboard.append(paging_row)
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
     if replace:
         try:
             await context.bot.edit_message_reply_markup(

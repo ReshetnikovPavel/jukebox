@@ -38,12 +38,11 @@ async def get_and_send_artist(
 
     keyboard = []
     if len(artist["songs"]["results"]) > 0:
-        first_song_id = artist["songs"]["results"][0]["videoId"]
         keyboard.append(
             [
                 InlineKeyboardButton(
                     "Треки",
-                    callback_data=f"{consts.ARTIST_SONGS} {artist_id} {first_song_id}",
+                    callback_data=f"{consts.ARTIST_SONGS} {artist_id}",
                 )
             ]
         )
