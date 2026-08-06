@@ -22,8 +22,9 @@ VIDEO_DOWNLOAD = "video_download"
 ARTIST_GET = "artist_get"
 ARTIST_SONGS = "artist_songs"
 ARTIST_ALBUMS = "artist_albums"
+ARTIST_SINGLES = "artist_singles"
 
-REPLACE_MESSAGE = "replace"
+REPLACE_MESSAGE = "r"
 
 SEP = '–'
 

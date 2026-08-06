@@ -55,6 +55,15 @@ async def get_and_send_artist(
                 )
             ]
         )
+    if len(artist["singles"]["results"]) > 0:
+        keyboard.append(
+            [
+                InlineKeyboardButton(
+                    "Синглы",
+                    callback_data=f"{consts.ARTIST_SINGLES} {artist_id}",
+                )
+            ]
+        )
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     if artwork:
