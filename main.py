@@ -69,7 +69,6 @@ if __name__ == "__main__":
     )
 
     application.add_error_handler(handlers.error_handler)
-
     add_query_handler(application, consts.TRACK_COMMAND, handlers.songs.search_handler)
     add_query_handler(application, consts.LYRICS_COMMAND, handlers.songs.search_lyrics_handler)
     add_query_handler(application, consts.VIDEO_COMMAND, handlers.video.search_handler)
@@ -80,5 +79,10 @@ if __name__ == "__main__":
     application.add_handler(CommandHandler(consts.HELP_COMMAND, handlers.help_handler))
     application.add_handler(MessageHandler(filters.TEXT & (~filters.COMMAND), handlers.message_handler))
     application.add_handler(CallbackQueryHandler(handlers.callback_handler))
+
+    if os.environ.get("MIGRATION") == "true":
+        application.add_handler(CommandHandler(consts.MIGRATE_COMMAND, handlers.migration_handler))
+    else:
+        logging.info("MIGRATION variable is not set to true")
 
     application.run_polling()

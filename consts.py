@@ -12,6 +12,8 @@ ALBUM_COMMAND = "album"
 TRACK_COMMAND = "track"
 ARTIST_COMMAND = "artist"
 
+MIGRATE_COMMAND = "migrate"
+
 CONVERSATION_HANDLER_REPEAT = "conversation_handler_repeat"
 
 SONG_DOWNLOAD = "song_download"

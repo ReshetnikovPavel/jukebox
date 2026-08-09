@@ -3,4 +3,5 @@ from .cancel import cancel_search_handler  # noqa: F401
 from .error import error_handler  # noqa: F401
 from .help import help_handler  # noqa: F401
 from .message import message_handler  # noqa: F401
+from .migrate import migration_handler  # noqa: F401
 from .start import start_handler  # noqa: F401
