@@ -21,12 +21,13 @@ async def download_handler(
     assert callback_data is not None
 
     video_id = callback_data.split(maxsplit=1)[1]
-    artists_title_str = utils.get_selected_button_text(callback_query, video_id)
-    assert artists_title_str is not None
-
-    artist, title = artists_title_str.split(consts.SEP, maxsplit=1)
-    artist = artist.strip()
-    title = title.strip()
+    if artists_title_str := utils.get_selected_button_text(callback_query, video_id):
+        artist, title = artists_title_str.split(consts.SEP, maxsplit=1)
+        artist = artist.strip()
+        title = title.strip()
+    else:
+        artist = None
+        title = None
 
     await services.download_and_send_track(
         video_id,
