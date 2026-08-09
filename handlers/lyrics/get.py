@@ -10,7 +10,7 @@ import services
 from services.yt_cache import CachedYTMusic as YTMusic
 
 
-async def get_lyrics_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def get_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
     assert chat is not None
 

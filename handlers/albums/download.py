@@ -10,7 +10,6 @@ import handlers.songs
 import services
 from services import cache
 from services.metadata import TrackMetadata
-from utils import get_selected_button_text
 
 
 async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -23,15 +22,12 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     callback_data = callback_query.data
     assert callback_data is not None
 
-    id = callback_data.split(maxsplit=1)[1]
-    selected_button_text = get_selected_button_text(callback_query, id) or ""
-    if consts.SEP in selected_button_text:
-        browse_id = get_browse_id(callback_query)
-        await handlers.songs.download_handler(update, context, browse_id)
-        return
+    browse_id = callback_data.split(maxsplit=1)[1]
 
     songs = list(get_songs(callback_query))
-    file_ids_in_cache = [await cache.get_file_id(song.video_id) for song in songs]
+    file_ids_in_cache = [
+        await cache.get_file_id(song.video_id, browse_id) for song in songs
+    ]
     if all(file_ids_in_cache):
         for file_id in file_ids_in_cache:
             assert file_id is not None
@@ -44,14 +40,16 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     metadata_message = await context.bot.send_message(chat.id, "Загружаю метадату")
-    meta_by_title: dict[str, TrackMetadata] = dict()
+    meta_by_title: dict[str, TrackMetadata] = {}
     try:
         meta_by_title = {
-            s.title: s for s in await services.get_metadata_by_album_browse_id(id)
+            s.title: s for s in await services.get_metadata_by_browse_id(browse_id)
         }
     except Exception as e:
         await context.bot.send_message(chat.id, "Не получилось найти метадату 😭")
-        await handlers.error.report(e, update, context, "WARN: Unable to get metadata, skipping")
+        await handlers.error.report(
+            e, update, context, "WARN: Unable to get metadata, skipping"
+        )
     await metadata_message.delete()
 
     for song, file_id in zip(songs, file_ids_in_cache):
@@ -66,14 +64,16 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 if meta_by_title:
                     track_meta = meta_by_title[song.title]
                 else:
-                    track_meta = await services.get_metadata_by_video_id(song.video_id)
+                    track_meta = await services.get_metadata(song.video_id, browse_id)
                 services.write_metadata(track_meta, audio_path)
                 has_written_metadata = True
             except Exception as e:
                 await context.bot.send_message(
                     chat.id, "Трек загрузился, но не получилось записать метадату 😭"
                 )
-                await handlers.error.report(e, update, context, "WARN: Unable to write metadata, skipping")
+                await handlers.error.report(
+                    e, update, context, "WARN: Unable to write metadata, skipping"
+                )
                 has_written_metadata = False
 
             try:
@@ -86,9 +86,14 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 assert res.audio is not None
                 if has_written_metadata:
-                    await cache.add_track(song.video_id, res.audio.file_id)
+                    await cache.add_track(song.video_id, browse_id, res.audio.file_id)
             except TelegramError as e:
-                await handlers.error.report(e, update, context, "WARN: stopped waiting for telegram respond to audio upload")
+                await handlers.error.report(
+                    e,
+                    update,
+                    context,
+                    "WARN: stopped waiting for telegram respond to audio upload",
+                )
 
     await download_album_message.delete()
 

@@ -30,7 +30,9 @@ async def search_handler(
     if not query:
         has_reply = utils.get_performer_and_title_from_reply(message)
         if not has_reply:
-            await message.reply_text("Напишите, пожалуйста, ваш запрос\n\nИспользуйте /cancel для отмены")
+            await message.reply_text(
+                "Напишите, пожалуйста, ваш запрос\n\nИспользуйте /cancel для отмены"
+            )
             return consts.CONVERSATION_HANDLER_REPEAT
         performer, title = has_reply
         query = f"{performer} {title}"
@@ -38,12 +40,14 @@ async def search_handler(
     ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     tracks = await asyncio.to_thread(ytmusic.search, query, filter="songs")
 
-    if performer and title and (track := utils.get_song_from_search_response(tracks, performer, title)):
+    if (
+        performer
+        and title
+        and (track := utils.get_song_from_search_response(tracks, performer, title))
+    ):
         video_id = track["videoId"]
-        browse_id = track["album"]["id"]
-        await services.download_and_send_track(
-            video_id, browse_id, update, context, chat.id, artist=performer, title=title
-        )
+        lyrics = await services.get_lyrics_from_video_id(ytmusic, video_id)
+        await services.send_lyrics(lyrics, performer, title, context.bot, chat.id)
         return ConversationHandler.END
 
     tracks = tracks[:SEARCH_LIMIT]
@@ -55,7 +59,7 @@ async def search_handler(
         [
             InlineKeyboardButton(
                 f"{', '.join(a['name'] for a in t['artists'])} {consts.SEP} {t['title']}",
-                callback_data=f"{consts.SONG_DOWNLOAD} {t['videoId']} {t['album']['id']}",
+                callback_data=f"{consts.LYRICS_GET} {t['videoId']}",
             )
         ]
         for t in tracks

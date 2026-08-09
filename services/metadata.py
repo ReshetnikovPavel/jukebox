@@ -20,6 +20,7 @@ class TrackMetadata:
     lyrics: str | None
     artwork: bytes | None
     total_tracks: int | None
+    browse_id: str | None
 
 
 def write_metadata(metadata: TrackMetadata, filepath: str) -> None:
@@ -43,9 +44,7 @@ def write_metadata(metadata: TrackMetadata, filepath: str) -> None:
     tag_editor.save()
 
 
-async def get_metadata_by_video_id(
-    video_id: str, album_browse_id: str | None = None
-) -> TrackMetadata:
+async def get_metadata(video_id: str, browse_id: str | None) -> TrackMetadata:
     ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     watch_playlist = await asyncio.to_thread(
         ytmusic.get_watch_playlist, video_id, limit=1
@@ -60,19 +59,19 @@ async def get_metadata_by_video_id(
         metadata = __get_metadata_for_video(track, artwork)
         return metadata
 
-    album_browse_id = album_browse_id or track["album"]["id"]
+    browse_id = browse_id or track["album"]["id"]
 
-    album = await asyncio.to_thread(ytmusic.get_album, album_browse_id)
+    album = await asyncio.to_thread(ytmusic.get_album, browse_id)
     artwork = await services.get_widest_thumbnail(album["thumbnails"])
     lyrics = await services.get_lyrics_from_playlist(ytmusic, watch_playlist)
     for track in album["tracks"]:
         if track["title"] == title:
             break
-    metadata = __get_metadata_for_song(album, track, artwork, lyrics)
+    metadata = __get_metadata_for_song(album, track, artwork, lyrics, browse_id)
     return metadata
 
 
-async def get_metadata_by_album_browse_id(browse_id: str) -> list[TrackMetadata]:
+async def get_metadata_by_browse_id(browse_id: str) -> list[TrackMetadata]:
     ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
     album = await asyncio.to_thread(ytmusic.get_album, browse_id)
     artwork = await services.get_widest_thumbnail(album["thumbnails"])
@@ -80,7 +79,7 @@ async def get_metadata_by_album_browse_id(browse_id: str) -> list[TrackMetadata]
     metadatas: list[TrackMetadata] = []
     for track in album["tracks"]:
         lyrics = await services.get_lyrics_from_video_id(ytmusic, track["videoId"])
-        metadata = __get_metadata_for_song(album, track, artwork, lyrics)
+        metadata = __get_metadata_for_song(album, track, artwork, lyrics, browse_id)
         metadatas.append(metadata)
     return metadatas
 
@@ -99,6 +98,7 @@ def __get_metadata_for_video(track: dict, artwork: bytes | None) -> TrackMetadat
         track_number=None,
         lyrics=None,
         total_tracks=None,
+        browse_id=None,
     )
 
 
@@ -107,6 +107,7 @@ def __get_metadata_for_song(
     track: dict,
     artwork: bytes | None,
     lyrics: str | None,
+    browse_id: str
 ) -> TrackMetadata:
     album_artist = ", ".join(a["name"] for a in album["artists"])
     album_title = album["title"]
@@ -128,4 +129,5 @@ def __get_metadata_for_song(
         lyrics=lyrics,
         artwork=artwork,
         total_tracks=total_tracks,
+        browse_id=browse_id,
     )

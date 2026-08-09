@@ -22,27 +22,32 @@ from services.metadata import TrackMetadata
 
 async def download_and_send_track(
     video_id: str,
+    browse_id: str | None,
     update: Update,
     context: ContextTypes.DEFAULT_TYPE,
     chat_id: int,
-    browse_id: str | None = None,
     artist: str | None = None,
     title: str | None = None,
     parse_video_title: bool = False,
 ) -> None:
-    if file_id := await cache.get_file_id(video_id):
+    if file_id := await cache.get_file_id(video_id, browse_id):
         await context.bot.send_audio(chat_id, file_id)
         return
 
     try:
-        metadata = await services.get_metadata_by_video_id(video_id, browse_id)
+        metadata = await services.get_metadata(video_id, browse_id)
+        browse_id = metadata.browse_id
     except Exception as e:
         await context.bot.send_message(chat_id, "Не получилось найти метадату 😭")
         await handlers.error.report(e, update, context, "WARN: Unable to get metadata, skipping")
         metadata = None
 
+    if metadata and (file_id := await cache.get_file_id(video_id, browse_id)):
+        await context.bot.send_audio(chat_id, file_id)
+        return
+
     (artist, title) = __get_artist_title(metadata, title, artist, parse_video_title)
-    if metadata is not None:
+    if metadata:
         metadata.artist = artist
         metadata.title = title
 
@@ -50,20 +55,22 @@ async def download_and_send_track(
     assert artist is not None
     async with download_track(video_id, artist, title, update, context) as audio_path:
         try:
-            if metadata is not None:
+            if metadata:
                 services.write_metadata(metadata, audio_path)
+                has_written_metadata = True
         except Exception as e:
             await context.bot.send_message(
                 chat_id, "Трек загрузился, но не получилось записать метадату 😭"
             )
             await handlers.error.report(e, update, context, "WARN: Unable to write metadata, skipping")
+            has_written_metadata = False
 
         res = await context.bot.send_audio(
             chat_id, audio_path, title=title, performer=artist, write_timeout=6400
         )
         assert res.audio is not None
-        if metadata is not None:
-            await cache.add_track(video_id, res.audio.file_id)
+        if has_written_metadata:
+            await cache.add_track(video_id, browse_id, res.audio.file_id)
 
 
 def __get_artist_title(

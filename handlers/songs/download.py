@@ -1,7 +1,7 @@
-import consts
 from telegram import Update
 from telegram.ext import ContextTypes
 
+import consts
 import services
 import utils
 
@@ -20,7 +20,9 @@ async def download_handler(
     callback_data = callback_query.data
     assert callback_data is not None
 
-    video_id = callback_data.split(maxsplit=1)[1]
+    parts = callback_data.split()
+    video_id = parts[1]
+    browse_id = parts[2] if len(parts) > 2 else browse_id
     if artists_title_str := utils.get_selected_button_text(callback_query, video_id):
         artist, title = artists_title_str.split(consts.SEP, maxsplit=1)
         artist = artist.strip()
@@ -31,10 +33,10 @@ async def download_handler(
 
     await services.download_and_send_track(
         video_id,
+        browse_id,
         update,
         context,
         chat.id,
-        browse_id=browse_id,
         artist=artist,
         title=title,
     )

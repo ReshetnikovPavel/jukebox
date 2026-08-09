@@ -52,7 +52,7 @@ async def songs_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         LIMIT,
         lambda t: InlineKeyboardButton(
             f"{', '.join(a['name'] for a in t['artists'])} {consts.SEP} {t['title']}",
-            callback_data=f"{consts.SONG_DOWNLOAD} {t['videoId']}",
+            callback_data=f"{consts.SONG_DOWNLOAD} {t['videoId']} {t['album']['id']}",
         ),
         lambda from_id: InlineKeyboardButton(
             "←",

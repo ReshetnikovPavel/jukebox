@@ -1,7 +1,7 @@
-import consts
 from telegram import Update
 from telegram.ext import ContextTypes
 
+import consts
 import services
 import utils
 
@@ -30,10 +30,10 @@ async def download_handler(
 
     await services.download_and_send_track(
         video_id,
+        browse_id,
         update,
         context,
         chat.id,
-        browse_id=browse_id,
         artist=uploader,
         title=video_title,
         parse_video_title=True,

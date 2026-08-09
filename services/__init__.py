@@ -11,8 +11,8 @@ from .lyrics import (  # noqa: F401
     send_lyrics,
 )
 from .metadata import (  # noqa: F401
-    get_metadata_by_album_browse_id,
-    get_metadata_by_video_id,
+    get_metadata,
+    get_metadata_by_browse_id,
     write_metadata,
 )
 from .thumbnail import get_widest_thumbnail  # noqa: F401
