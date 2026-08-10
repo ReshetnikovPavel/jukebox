@@ -23,16 +23,18 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     match domain:
         case "music.youtube.com":
             video_id = parse_qs(parsed_url.query)["v"][0]
-            await services.download_and_send_track(video_id, update, context, chat.id)
+            await services.download_and_send_track(
+                video_id, None, update, context, chat.id
+            )
         case "www.youtube.com" | "youtube.com":
             video_id = parse_qs(parsed_url.query)["v"][0]
             await services.download_and_send_track(
-                video_id, update, context, chat.id, parse_video_title=True
+                video_id, None, update, context, chat.id, parse_video_title=True
             )
         case "www.youtu.be" | "youtu.be":
             video_id = parsed_url.path.split("/")[1]
             await services.download_and_send_track(
-                video_id, update, context, chat.id, parse_video_title=True
+                video_id, None, update, context, chat.id, parse_video_title=True
             )
         case _:
             await services.download_and_send_audio_from_video(link, context, chat.id)
