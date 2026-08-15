@@ -11,6 +11,8 @@ services:
       MIGRATION: false
     volumes:
       - data:/data
+    networks:
+      - app-network
 
   bgutil-provider:
     image: brainicism/bgutil-ytdlp-pot-provider
@@ -19,6 +21,11 @@ services:
     init: true
     ports:
       - "4416:4416"
+    networks:
+      - app-network
 
 volumes:
   data:
+
+networks:
+  app-network:
