@@ -10,7 +10,6 @@ import youtube_title_parse
 import yt_dlp
 from telegram import Update
 from telegram.ext import ContextTypes
-from yt_dlp.utils import DownloadError
 
 import consts
 import handlers
@@ -120,20 +119,13 @@ async def download_track(
         webm_path = os.path.join(tmp_dir, f"{filename_without_ext}.webm")
         opts = {
             "extract_audio": True,
-            "format": "bestaudio",
             "outtmpl": webm_path,
             **utils.default_yt_dlp_opts(),
         }
 
         async with DOWNLOAD_SEMAPHORE:
-            try:
-                with yt_dlp.YoutubeDL(opts) as ytdl:
-                    await asyncio.to_thread(ytdl.download, link)
-            except DownloadError as e:
-                await handlers.error.report(e, update, context, f"WARN: unable to download track {filename_without_ext}, trying again with cookies")
-                opts["cookiefile"] = consts.YT_COOKIES_PATH
-                with yt_dlp.YoutubeDL(opts) as ytdl:
-                    await asyncio.to_thread(ytdl.download, link)
+            with yt_dlp.YoutubeDL(opts) as ytdl:
+                await asyncio.to_thread(ytdl.download, link)
 
         mp3_path = os.path.join(tmp_dir, f"{filename_without_ext}.mp3")
         await asyncio.to_thread(

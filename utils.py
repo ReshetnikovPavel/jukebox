@@ -10,6 +10,16 @@ import consts
 def default_yt_dlp_opts() -> dict:
     return {
         "js_runtimes": {"deno": {}, "node": {}},
+        "cookiefile": consts.YT_COOKIES_PATH,
+        "extractor_args": {
+            "youtubepot-bgutilhttp": {
+                "base_url": [
+                    os.environ.get(
+                        consts.BGUTIL_PROVIDER_URL_VAR, "http://127.0.0.1:4416"
+                    )
+                ],
+            },
+        },
     }
 
 
