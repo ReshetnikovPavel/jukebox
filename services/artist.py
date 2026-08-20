@@ -37,7 +37,7 @@ async def get_and_send_artist(
     artwork = await services.get_widest_thumbnail(artist["thumbnails"])
 
     keyboard = []
-    if len(artist["songs"]["results"]) > 0:
+    if "songs" in artist and len(artist["songs"]["results"]) > 0:
         keyboard.append(
             [
                 InlineKeyboardButton(
@@ -46,7 +46,7 @@ async def get_and_send_artist(
                 )
             ]
         )
-    if len(artist["albums"]["results"]) > 0:
+    if "albums" in artist and len(artist["albums"]["results"]) > 0:
         keyboard.append(
             [
                 InlineKeyboardButton(
@@ -55,7 +55,7 @@ async def get_and_send_artist(
                 )
             ]
         )
-    if len(artist["singles"]["results"]) > 0:
+    if "singles" in artist and len(artist["singles"]["results"]) > 0:
         keyboard.append(
             [
                 InlineKeyboardButton(
