@@ -39,7 +39,7 @@ async def search_handler(
             album = track["album"]
             album_id = album["id"]
             album_title = album["name"]
-            album = await services.get_album(ytmusic, album_id)
+            album = await services.get_album(ytmusic, album_id, update, context)
             artists_title_str = f"{performer} {consts.SEP} {album_title}"
             await services.send_album(
                 album, album_id, artists_title_str, context.bot, chat.id

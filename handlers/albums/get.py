@@ -22,5 +22,5 @@ async def get_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     assert artists_title_str is not None
 
     ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
-    album = await services.get_album(ytmusic, browse_id)
+    album = await services.get_album(ytmusic, browse_id, update, context)
     await services.send_album(album, browse_id, artists_title_str, context.bot, chat.id)

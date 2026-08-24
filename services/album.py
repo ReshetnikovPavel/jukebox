@@ -1,24 +1,41 @@
 import asyncio
 import html
 import logging
+from dataclasses import dataclass
 from typing import Any
 
-from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Bot, InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.constants import ParseMode
+from telegram.ext import ContextTypes
 
 import consts
+import services
+from handlers.error import report
 from services.yt_cache import CachedYTMusic as YTMusic
 
 Track = dict[str, Any]
-Album = list[tuple[Track, str]]
 
 
-async def get_album(ytmusic: YTMusic, browse_id: str) -> Album:
-    result = await asyncio.to_thread(ytmusic.get_album, browse_id)
-    tracks = result["tracks"]
+@dataclass
+class Album:
+    tracks: list[tuple[Track, str]]
+    artwork: bytes | None
+
+
+async def get_album(
+    ytmusic: YTMusic, browse_id: str, update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> Album:
+    album = await asyncio.to_thread(ytmusic.get_album, browse_id)
+    tracks = album["tracks"]
     video_ids = await asyncio.gather(*[search_video_id(ytmusic, t) for t in tracks])
 
-    return list(zip(tracks, video_ids))
+    try:
+        artwork = await services.get_widest_thumbnail(album["thumbnails"])
+    except Exception as e:
+        await report(e, update, context, "WARN: не получилось найти обложку альбома")
+        artwork = None
+
+    return Album(tracks=list(zip(tracks, video_ids)), artwork=artwork)
 
 
 async def send_album(
@@ -31,7 +48,7 @@ async def send_album(
                 callback_data=f"{consts.SONG_DOWNLOAD} {video_id} {browse_id}",
             )
         ]
-        for (t, video_id) in album
+        for (t, video_id) in album.tracks
     ]
     keyboard.append(
         [
@@ -43,10 +60,20 @@ async def send_album(
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    text = f"<b>{html.escape(artists_title_str)}</b>\n\nВыберите трек"
-    await bot.send_message(
-        chat_id, text, reply_markup=reply_markup, parse_mode=ParseMode.HTML
-    )
+    caption = f"<b>{html.escape(artists_title_str)}</b>\n\nВыберите трек"
+
+    if album.artwork:
+        await bot.send_photo(
+            chat_id,
+            album.artwork,
+            caption,
+            reply_markup=reply_markup,
+            parse_mode=ParseMode.HTML,
+        )
+    else:
+        await bot.send_message(
+            chat_id, caption, reply_markup=reply_markup, parse_mode=ParseMode.HTML
+        )
 
 
 async def search_video_id(ytmusic: YTMusic, track_from_album: dict) -> str:
