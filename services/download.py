@@ -1,7 +1,6 @@
 import asyncio
 import json
 import os
-import subprocess
 import tempfile
 from contextlib import asynccontextmanager
 from types import AsyncGeneratorType
@@ -116,10 +115,17 @@ async def download_track(
     link = f"https://music.youtube.com/watch?v={video_id}"
     filename_without_ext = f"{artist} - {title}"
     with tempfile.TemporaryDirectory() as tmp_dir:
-        webm_path = os.path.join(tmp_dir, f"{filename_without_ext}.webm")
+        outtmpl = os.path.join(tmp_dir, f"{filename_without_ext}.%(ext)s")
         opts = {
-            "extract_audio": True,
-            "outtmpl": webm_path,
+            "format": "ba[acodec^=mp3]/ba/b",
+            "outtmpl": outtmpl,
+            "postprocessors": [
+                {
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": "5",
+                }
+            ],
             **utils.default_yt_dlp_opts(),
         }
 
@@ -128,9 +134,6 @@ async def download_track(
                 await asyncio.to_thread(ytdl.download, link)
 
         mp3_path = os.path.join(tmp_dir, f"{filename_without_ext}.mp3")
-        await asyncio.to_thread(
-            subprocess.check_call, ["ffmpeg", "-i", webm_path, mp3_path]
-        )
 
         try:
             yield mp3_path
@@ -148,13 +151,19 @@ async def download_and_send_audio_from_video(
     )
 
     with tempfile.TemporaryDirectory() as tmp_dir:
-        out_path = os.path.join(tmp_dir, "audio.mp3")
+        outtmpl = os.path.join(tmp_dir, "audio.%(ext)s")
         opts = {
-            "extract_audio": True,
+            "format": "ba[acodec^=mp3]/ba/b",
+            "outtmpl": outtmpl,
+            "postprocessors": [
+                {
+                    "key": "FFmpegExtractAudio",
+                    "preferredcodec": "mp3",
+                    "preferredquality": "5",
+                }
+            ],
             "writeinfojson": True,
             "noplaylist": True,
-            "format": "bestaudio",
-            "outtmpl": out_path,
             **utils.default_yt_dlp_opts(),
         }
 
@@ -162,13 +171,13 @@ async def download_and_send_audio_from_video(
             with yt_dlp.YoutubeDL(opts) as ytdl:
                 await asyncio.to_thread(ytdl.download, link)
 
-        with open(out_path + ".info.json") as metadata_file:
+        with open(os.path.join(tmp_dir, "audio.info.json")) as metadata_file:
             metadata = json.load(metadata_file)
             title = metadata["title"]
             performer = metadata["uploader"]
 
         await context.bot.send_audio(
-            chat_id, out_path, title=title, performer=performer
+            chat_id, os.path.join(tmp_dir, "audio.mp3"), title=title, performer=performer
         )
 
     await download_message.delete()
