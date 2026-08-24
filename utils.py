@@ -23,6 +23,19 @@ def default_yt_dlp_opts() -> dict:
     }
 
 
+def mp3_yt_dlp_opts() -> dict:
+    return {
+        "format": "ba[acodec^=mp3]/ba/b",
+        "postprocessors": [
+            {
+                "key": "FFmpegExtractAudio",
+                "preferredcodec": "mp3",
+                "preferredquality": "5",
+            }
+        ],
+    }
+
+
 def split_command(s: str) -> tuple[str | None, str]:
     if s.startswith("/"):
         splits = s.split(maxsplit=1)

@@ -117,15 +117,8 @@ async def download_track(
     with tempfile.TemporaryDirectory() as tmp_dir:
         outtmpl = os.path.join(tmp_dir, f"{filename_without_ext}.%(ext)s")
         opts = {
-            "format": "ba[acodec^=mp3]/ba/b",
             "outtmpl": outtmpl,
-            "postprocessors": [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "5",
-                }
-            ],
+            **utils.mp3_yt_dlp_opts(),
             **utils.default_yt_dlp_opts(),
         }
 
@@ -153,17 +146,10 @@ async def download_and_send_audio_from_video(
     with tempfile.TemporaryDirectory() as tmp_dir:
         outtmpl = os.path.join(tmp_dir, "audio.%(ext)s")
         opts = {
-            "format": "ba[acodec^=mp3]/ba/b",
             "outtmpl": outtmpl,
-            "postprocessors": [
-                {
-                    "key": "FFmpegExtractAudio",
-                    "preferredcodec": "mp3",
-                    "preferredquality": "5",
-                }
-            ],
             "writeinfojson": True,
             "noplaylist": True,
+            **utils.mp3_yt_dlp_opts(),
             **utils.default_yt_dlp_opts(),
         }
 
