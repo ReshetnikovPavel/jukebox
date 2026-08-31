@@ -1,3 +1,4 @@
+import random
 from dataclasses import dataclass
 from types import GeneratorType
 
@@ -22,9 +23,14 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     callback_data = callback_query.data
     assert callback_data is not None
 
-    browse_id = callback_data.split(maxsplit=1)[1]
+    parts = callback_data.split()
+    browse_id = parts[1]
+    is_shuffle = parts[2] == consts.SHUFFLE
 
     songs = list(get_songs(callback_query))
+    if is_shuffle:
+        random.shuffle(songs)
+
     file_ids_in_cache = [
         await cache.get_file_id(song.video_id, browse_id) for song in songs
     ]

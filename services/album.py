@@ -53,9 +53,13 @@ async def send_album(
     keyboard.append(
         [
             InlineKeyboardButton(
-                "Скачать весь альбом",
+                "🔀",
+                callback_data=f"{consts.ALBUM_DOWNLOAD} {browse_id} {consts.SHUFFLE}",
+            ),
+            InlineKeyboardButton(
+                "Скачать все",
                 callback_data=f"{consts.ALBUM_DOWNLOAD} {browse_id}",
-            )
+            ),
         ]
     )
     reply_markup = InlineKeyboardMarkup(keyboard)

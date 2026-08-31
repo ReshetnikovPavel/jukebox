@@ -28,6 +28,7 @@ ARTIST_ALBUMS = "artist_albums"
 ARTIST_SINGLES = "artist_singles"
 
 REPLACE_MESSAGE = "r"
+SHUFFLE = "shuffle"
 
 SEP = '–'
 
