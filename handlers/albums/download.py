@@ -25,7 +25,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     parts = callback_data.split()
     browse_id = parts[1]
-    is_shuffle = parts[2] == consts.SHUFFLE
+    is_shuffle = parts[2] == consts.SHUFFLE if len(parts) > 2 else False
 
     songs = list(get_songs(callback_query))
     if is_shuffle:
