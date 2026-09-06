@@ -10,6 +10,7 @@ from telegram.ext import ContextTypes
 
 import consts
 import services
+import services.nlp_duration
 from handlers.error import report
 from services.yt_cache import CachedYTMusic as YTMusic
 
@@ -20,6 +21,8 @@ Track = dict[str, Any]
 class Album:
     tracks: list[tuple[Track, str]]
     artwork: bytes | None
+    duration: str | None
+    year: str | None
 
 
 async def get_album(
@@ -35,7 +38,15 @@ async def get_album(
         await report(e, update, context, "WARN: не получилось найти обложку альбома")
         artwork = None
 
-    return Album(tracks=list(zip(tracks, video_ids)), artwork=artwork)
+    if duration := album.get("duration"):
+        duration = services.nlp_duration.en_to_ru(duration)
+
+    return Album(
+        tracks=list(zip(tracks, video_ids)),
+        artwork=artwork,
+        duration=duration,
+        year=album.get("year")
+    )
 
 
 async def send_album(
@@ -64,7 +75,16 @@ async def send_album(
     )
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    caption = f"<b>{html.escape(artists_title_str)}</b>\n\nВыберите трек"
+    caption = []
+    caption.append(f"<b>{html.escape(artists_title_str)}</b>")
+    metadata = []
+    if album.duration:
+        metadata.append(html.escape(album.duration))
+    if album.year:
+        metadata.append(html.escape(album.year))
+    metadata = "\n".join(metadata)
+    caption.append(metadata)
+    caption = "\n\n".join(caption)
 
     if album.artwork:
         await bot.send_photo(
