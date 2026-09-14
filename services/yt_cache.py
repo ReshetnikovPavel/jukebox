@@ -1,6 +1,7 @@
 import functools
 import hashlib
 import json
+import threading
 import time
 from dataclasses import dataclass
 from typing import Any
@@ -15,6 +16,7 @@ class CacheEntry:
     value: Any
 
 
+_LOCK = threading.Lock()
 _CACHE: dict[str, CacheEntry] = {}
 _CACHE_TTL = 300
 _CACHE_MAX_SIZE = 200
@@ -61,24 +63,24 @@ def _make_key(method_name: str, args: tuple[Any, ...], kwargs: dict[str, Any]) -
 
 
 def _get_from_cache(key: str) -> Any:
-    if key in _CACHE.copy():
-        entry = _CACHE[key]
-        now = time.time()
-        if now - entry.created_at < _CACHE_TTL:
-            _CACHE[key].accessed_at = now
-            return entry.value
-        else:
-            del _CACHE[key]
-    return None
+    with _LOCK:
+        if entry := _CACHE.get(key):
+            now = time.monotonic()
+            if now - entry.created_at < _CACHE_TTL:
+                _CACHE[key].accessed_at = now
+                return entry.value
+            else:
+                del _CACHE[key]
+        return None
 
 
 def _set_cache(key: str, value: Any) -> None:
-    if len(_CACHE) >= _CACHE_MAX_SIZE:
-        oldest = min(_CACHE.copy(), key=lambda k: _CACHE[k].accessed_at)
-        del _CACHE[oldest]
-
-    now = time.time()
-    _CACHE[key] = CacheEntry(now, now, value)
+    now = time.monotonic()
+    with _LOCK:
+        if len(_CACHE) >= _CACHE_MAX_SIZE:
+            oldest = min(_CACHE, key=lambda k: _CACHE[k].accessed_at)
+            del _CACHE[oldest]
+        _CACHE[key] = CacheEntry(now, now, value)
 
 
 @cache_methods(
