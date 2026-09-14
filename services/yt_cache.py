@@ -61,7 +61,7 @@ def _make_key(method_name: str, args: tuple[Any, ...], kwargs: dict[str, Any]) -
 
 
 def _get_from_cache(key: str) -> Any:
-    if key in _CACHE:
+    if key in _CACHE.copy():
         entry = _CACHE[key]
         now = time.time()
         if now - entry.created_at < _CACHE_TTL:
@@ -74,7 +74,7 @@ def _get_from_cache(key: str) -> Any:
 
 def _set_cache(key: str, value: Any) -> None:
     if len(_CACHE) >= _CACHE_MAX_SIZE:
-        oldest = min(_CACHE, key=lambda k: _CACHE[k].accessed_at)
+        oldest = min(_CACHE.copy(), key=lambda k: _CACHE[k].accessed_at)
         del _CACHE[oldest]
 
     now = time.time()
