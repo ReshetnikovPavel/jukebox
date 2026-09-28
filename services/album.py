@@ -45,7 +45,7 @@ async def get_album(
         tracks=list(zip(tracks, video_ids)),
         artwork=artwork,
         duration=duration,
-        year=album.get("year")
+        year=album.get("year"),
     )
 
 
@@ -106,6 +106,7 @@ async def search_video_id(ytmusic: YTMusic, track_from_album: dict) -> str:
     for track in tracks:
         if (
             track["title"] == track_from_album["title"]
+            and "artists" in track
             and len(track["artists"]) == len(track_from_album["artists"])
             and all(
                 t["id"] == a["id"]
