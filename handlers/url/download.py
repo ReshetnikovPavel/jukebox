@@ -37,4 +37,4 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 video_id, None, update, context, chat.id, parse_video_title=True
             )
         case _:
-            await services.download_and_send_audio_from_video(link, context, chat.id)
+            await context.bot.send_message(chat.id, "Простите, я могу скачивать по ссылке только c Youtube 😭")
