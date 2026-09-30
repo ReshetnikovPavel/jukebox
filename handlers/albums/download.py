@@ -51,7 +51,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         meta_by_title = {
             s.title: s for s in await services.get_metadata_by_browse_id(browse_id)
         }
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         await context.bot.send_message(chat.id, "Не получилось найти метадату 😭")
         await handlers.error.report(
             e, update, context, "WARN: Unable to get metadata, skipping"
@@ -73,7 +73,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     track_meta = await services.get_metadata(song.video_id, browse_id)
                 services.write_metadata(track_meta, audio_path)
                 has_written_metadata = True
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 await context.bot.send_message(
                     chat.id, "Трек загрузился, но не получилось записать метадату 😭"
                 )
