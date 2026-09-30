@@ -15,6 +15,6 @@ async def get_widest_thumbnail(thumbnails: list[dict[str, Any]]) -> bytes | None
     image_response = await asyncio.to_thread(requests.get, url)
     image_response = typing.cast(Response, image_response)
     if not image_response.ok:
-        raise Exception("Unable to get artwork", image_response)
+        raise RuntimeError("Unable to get artwork", image_response)
 
     return image_response.content

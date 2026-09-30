@@ -25,7 +25,7 @@ async def migration_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     developer_chat_id = int(developer_chat_id)
     
     if chat.id != developer_chat_id:
-        raise Exception(f"{username} tried to access /migrate command")
+        raise RuntimeError(f"{username} tried to access /migrate command")
 
     message = update.message or update.edited_message
     assert message is not None
@@ -35,7 +35,7 @@ async def migration_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     _command, module = utils.split_command(text)
 
     if not all(c.isalnum() or c == "_" for c in module):
-        raise Exception(f"module name must be alphanumeric or _")
+        raise RuntimeError(f"module name must be alphanumeric or _")
 
     migration = importlib.import_module(f"migrations.{module}")
     await migration.migrate(update, context)

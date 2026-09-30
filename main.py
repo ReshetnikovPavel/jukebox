@@ -59,7 +59,7 @@ if __name__ == "__main__":
         logger.info(".env file not found, using system environment variables")
     token = os.environ.get(consts.TG_TOKEN_VAR)
     if token is None:
-        raise Exception(f"{consts.TG_TOKEN_VAR} env variable is not present")
+        raise RuntimeError(f"{consts.TG_TOKEN_VAR} env variable is not present")
 
     cache.init_db()
 

@@ -41,4 +41,4 @@ async def callback_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         case consts.ARTIST_SINGLES:
             return await artists.singles_handler(update, context)
         case _:
-            raise Exception("Unknown callback_data", callback_data)
+            raise RuntimeError("Unknown callback_data", callback_data)
