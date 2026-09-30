@@ -113,7 +113,7 @@ async def download_track(
     )
 
     link = f"https://music.youtube.com/watch?v={video_id}"
-    filename_without_ext = f"{artist} - {title}"
+    filename_without_ext = utils.sanitize_filename(f"{artist} - {title}", "audio")
     with tempfile.TemporaryDirectory() as tmp_dir:
         outtmpl = os.path.join(tmp_dir, f"{filename_without_ext}.%(ext)s")
         opts = {

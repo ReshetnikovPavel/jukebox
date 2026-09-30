@@ -110,3 +110,7 @@ def get_song_from_search_response(
         track_artists = {a["name"] for a in track["artists"]}
         if track["title"] == title and track_artists == artists:
             return track
+
+
+def sanitize_filename(name: str, default: str) -> str:
+    return name.replace("/", "-").replace("\\", "-") or default
