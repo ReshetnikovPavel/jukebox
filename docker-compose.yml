@@ -11,6 +11,8 @@ services:
       MIGRATION: false
     volumes:
       - data:/data
+      - ./browser.json:/app/browser.json:ro
+      - ./cookies-youtube-com.txt:/app/cookies-youtube-com.txt
     networks:
       - app-network
 

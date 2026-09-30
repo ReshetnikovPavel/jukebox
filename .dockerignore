@@ -9,5 +9,14 @@ wheels/
 # Virtual environments
 .venv
 
+# Environment files
 .env
 .env.prod
+
+# Sensitive files
+browser.json
+cookies-youtube-com.txt
+jukebox.db
+
+# Git
+.git
