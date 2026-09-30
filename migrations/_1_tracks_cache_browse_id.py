@@ -12,6 +12,8 @@ from ytmusicapi import YTMusic
 
 import consts
 
+logger = logging.getLogger(__name__)
+
 
 def _get_db_path() -> str:
     return os.environ.get("SQLITE_PATH", "jukebox.db")
@@ -23,7 +25,7 @@ async def search_browse_id(
     artists = set(artist.split(", "))
     query = f"{artist} {album_name}"
     albums = await asyncio.to_thread(ytmusic.search, query, filter="albums")
-    logging.info(
+    logger.info(
         f"FOUND ALBUMS: {[(', '.join(artist['name'] for artist in a['artists']), a['title']) for a in albums]}"
     )
     for album in albums:
@@ -32,7 +34,7 @@ async def search_browse_id(
 
     query = f"{artist} {title}"
     tracks = await asyncio.to_thread(ytmusic.search, query, filter="songs")
-    logging.info(
+    logger.info(
         f"FOUND TRACKS: {[(t["videoId"], ', '.join(a['name'] for a in t['artists']), t['title'], t['album']['name'] if t.get('album') else None) for t in tracks]}"
     )
     for track in tracks:
@@ -51,7 +53,7 @@ async def migrate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 file_id TEXT NOT NULL,
                 UNIQUE(video_id, browse_id)
             );""")
-        logging.info(f"CREATED TABLE tracks_tmp")
+        logger.info(f"CREATED TABLE tracks_tmp")
         cur = conn.cursor()
         for video_id, file_id in cur.execute("SELECT video_id, file_id FROM tracks"):
             cur_inner = conn.cursor()
@@ -63,10 +65,10 @@ async def migrate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 (video_id,),
             )
             if cur_inner.fetchone():
-                logging.info(f"SKIPPING, Already saved `{video_id}` `{file_id}`")
+                logger.info(f"SKIPPING, Already saved `{video_id}` `{file_id}`")
                 continue
 
-            logging.info(f"UPDATING `{video_id}` `{file_id}`")
+            logger.info(f"UPDATING `{video_id}` `{file_id}`")
             file = await context.bot.get_file(file_id)
 
             with tempfile.TemporaryDirectory() as tmp_dir:
@@ -75,18 +77,18 @@ async def migrate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 title = tag_editor["tracktitle"].first
                 artist = tag_editor["artist"].first
                 album = tag_editor["album"].first
-                logging.info(f"TRACK `{title}` `{artist}` `{album}`")
+                logger.info(f"TRACK `{title}` `{artist}` `{album}`")
 
                 ytmusic = YTMusic(consts.YT_MUSIC_HEADERS_PATH)
                 browse_id = await search_browse_id(
                     ytmusic, video_id, title, artist, album
                 )
                 if browse_id is None:
-                    logging.warning(
+                    logger.warning(
                         f"TRACK NOT FOUND `{video_id}` `{title}` `{artist}` `{album}`"
                     )
                 else:
-                    logging.info(f"BROWSE_ID `{video_id}` `{browse_id}` `{file_id}`")
+                    logger.info(f"BROWSE_ID `{video_id}` `{browse_id}` `{file_id}`")
 
                 conn.execute(
                     """
@@ -97,10 +99,10 @@ async def migrate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                  """,
                     (video_id, browse_id, file_id),
                 )
-            logging.info(f"UPDATED `{video_id}` `{browse_id}` `{file_id}`")
+            logger.info(f"UPDATED `{video_id}` `{browse_id}` `{file_id}`")
             conn.commit()
 
         # conn.execute("DROP TABLE tracks")
-        # logging.info(f"DELETED TABLE tracks")
+        # logger.info(f"DELETED TABLE tracks")
         # conn.execute("ALTER TABLE tracks_tmp RENAME TO tracks")
-        # logging.info(f"RENAMED TABLE tracks_tmp to tracks")
+        # logger.info(f"RENAMED TABLE tracks_tmp to tracks")

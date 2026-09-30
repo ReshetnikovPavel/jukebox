@@ -14,6 +14,8 @@ import services.nlp_duration
 from handlers.error import report
 from services.yt_cache import CachedYTMusic as YTMusic
 
+logger = logging.getLogger(__name__)
+
 Track = dict[str, Any]
 
 
@@ -114,7 +116,7 @@ async def search_video_id(ytmusic: YTMusic, track_from_album: dict) -> str:
             )
         ):
             return track["videoId"]
-    logging.warning(
+    logger.warning(
         f"Unable to find videoId for track from album TRACK_FROM_ALBUM:::{track_from_album}, TRACKS:::{tracks}"
     )
     return track_from_album["videoId"]

@@ -8,6 +8,8 @@ from telegram.ext import ContextTypes
 
 import consts
 
+logger = logging.getLogger(__name__)
+
 
 async def migration_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat = update.effective_chat
@@ -18,7 +20,7 @@ async def migration_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     developer_chat_id = os.environ.get(consts.DEVELOPER_CHAT_ID_VAR)
     if developer_chat_id is None:
-        logging.error(f"{consts.DEVELOPER_CHAT_ID_VAR} environment var is not set")
+        logger.error(f"{consts.DEVELOPER_CHAT_ID_VAR} environment var is not set")
         return
     developer_chat_id = int(developer_chat_id)
     

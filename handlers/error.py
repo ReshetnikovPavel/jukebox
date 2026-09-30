@@ -11,6 +11,8 @@ from telegram.ext import ContextTypes
 
 import consts
 
+logger = logging.getLogger(__name__)
+
 
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     assert isinstance(context.error, Exception)
@@ -28,7 +30,7 @@ async def report(
     context: ContextTypes.DEFAULT_TYPE,
     msg: str | None = None,
 ) -> None:
-    logging.error("Error:", exc_info=error)
+    logger.error("Error:", exc_info=error)
 
     tb_list = traceback.format_exception(None, error, error.__traceback__)
     tb_string = "".join(tb_list)[:500]
@@ -63,6 +65,6 @@ async def report(
         error_file.name = "Error.txt"
         await context.bot.send_document(developer_chat_id, error_file)
     else:
-        logging.error(
+        logger.error(
             f"Unable to send error message to developer. {consts.DEVELOPER_CHAT_ID_VAR} environment var is not set"
         )

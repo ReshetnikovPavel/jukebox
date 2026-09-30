@@ -26,6 +26,8 @@ import handlers.songs
 import handlers.video
 from services import cache
 
+logger = logging.getLogger(__name__)
+
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
 )
@@ -54,7 +56,7 @@ def add_query_handler(
 
 if __name__ == "__main__":
     if not dotenv.load_dotenv():
-        logging.info(".env file not found, using system environment variables")
+        logger.info(".env file not found, using system environment variables")
     token = os.environ.get(consts.TG_TOKEN_VAR)
     if token is None:
         raise Exception(f"{consts.TG_TOKEN_VAR} env variable is not present")
@@ -84,6 +86,6 @@ if __name__ == "__main__":
     if os.environ.get("MIGRATION") == "true":
         application.add_handler(CommandHandler(consts.MIGRATE_COMMAND, handlers.migration_handler))
     else:
-        logging.info("MIGRATION variable is not set to true")
+        logger.info("MIGRATION variable is not set to true")
 
     application.run_polling()
