@@ -1,8 +1,8 @@
-import utils
 from telegram import Update
 from telegram.ext import ContextTypes
 
 import consts
+import utils
 from handlers import albums, artists, lyrics, songs, video
 
 

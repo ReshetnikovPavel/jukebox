@@ -36,7 +36,7 @@ async def get_album(
 
     try:
         artwork = await services.get_widest_thumbnail(album["thumbnails"])
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         await report(e, update, context, "WARN: не получилось найти обложку альбома")
         artwork = None
 

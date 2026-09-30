@@ -53,7 +53,7 @@ async def migrate(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 file_id TEXT NOT NULL,
                 UNIQUE(video_id, browse_id)
             );""")
-        logger.info(f"CREATED TABLE tracks_tmp")
+        logger.info("CREATED TABLE tracks_tmp")
         cur = conn.cursor()
         for video_id, file_id in cur.execute("SELECT video_id, file_id FROM tracks"):
             cur_inner = conn.cursor()

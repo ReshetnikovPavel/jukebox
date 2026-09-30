@@ -35,7 +35,7 @@ async def download_and_send_track(
     try:
         metadata = await services.get_metadata(video_id, browse_id)
         browse_id = metadata.browse_id
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         await context.bot.send_message(chat_id, "Не получилось найти метадату 😭")
         await handlers.error.report(e, update, context, "WARN: Unable to get metadata, skipping")
         metadata = None
@@ -56,7 +56,7 @@ async def download_and_send_track(
             if metadata:
                 services.write_metadata(metadata, audio_path)
                 has_written_metadata = True
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             await context.bot.send_message(
                 chat_id, "Трек загрузился, но не получилось записать метадату 😭"
             )
@@ -157,10 +157,13 @@ async def download_and_send_audio_from_video(
             with yt_dlp.YoutubeDL(opts) as ytdl:
                 await asyncio.to_thread(ytdl.download, link)
 
-        with open(os.path.join(tmp_dir, "audio.info.json")) as metadata_file:
-            metadata = json.load(metadata_file)
-            title = metadata["title"]
-            performer = metadata["uploader"]
+        def _read_metadata() -> dict:
+            with open(os.path.join(tmp_dir, "audio.info.json")) as f:
+                return json.load(f)
+
+        metadata = await asyncio.to_thread(_read_metadata)
+        title = metadata["title"]
+        performer = metadata["uploader"]
 
         await context.bot.send_audio(
             chat_id, os.path.join(tmp_dir, "audio.mp3"), title=title, performer=performer

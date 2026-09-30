@@ -1,4 +1,3 @@
-import utils
 import importlib
 import logging
 import os
@@ -7,6 +6,7 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 import consts
+import utils
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ async def migration_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     _command, module = utils.split_command(text)
 
     if not all(c.isalnum() or c == "_" for c in module):
-        raise RuntimeError(f"module name must be alphanumeric or _")
+        raise RuntimeError("module name must be alphanumeric or _")
 
     migration = importlib.import_module(f"migrations.{module}")
     await migration.migrate(update, context)
