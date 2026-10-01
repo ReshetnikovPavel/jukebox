@@ -20,3 +20,6 @@ jukebox.db
 
 # Git
 .git
+
+# Unneeded
+scripts/
