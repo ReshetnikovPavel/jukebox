@@ -28,34 +28,94 @@ Telegram-бот для поиска и загрузки музыки из YouTub
 
 ### Локальный запуск
 
-1. Клонируйте репозиторий:
+1. Cклонируйте репозиторий:
 
    ```bash
-   git clone <url-репозитория>
+   git clone https://github.com/ReshetnikovPavel/jukebox
    cd jukebox
    ```
 
-2. Создайте виртуальное окружение и установите зависимости:
+2. Установите зависимости:
 
+   - FFmpeg [ffmpeg.org](https://ffmpeg.org/download.html)
+   - Node.js [nodejs.org](https://nodejs.org/ru/download/).
+   - Deno [deno.com](https://docs.deno.com/runtime/getting_started/installation/).
+
+3. Создайте виртуальное окружение и установите зависимости:
+
+   Linux, macOS
    ```bash
-   uv sync
+   python -m venv .venv
+   source .venv/bin/activate
+   python -m pip install -e .
+   ```
+   Windows (cmd)
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate
+   python -m pip install -e .
    ```
 
-3. Создайте файл `.env` и укажите токен бота:
+   Windows (PowerShell)
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\Activate.ps1
+   python -m pip install -e .
+   ```
+
+4. Получите токен для Telegram-бота:
+
+   1. Откройте [@BotFather](https://t.me/BotFather) в Telegram
+   2. Отправьте команду `/newbot`
+   3. Следуйте инструкциям: придумайте название бота и его `@username`
+   4. BotFather пришлёт вам токен вида `123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ` — сохраните его
+
+5. Получите свой Chat ID:
+
+   Напишите боту [@userinfobot](https://t.me/userinfobot) — он пришлёт ваш ID
+
+6. Создайте файл `.env` и укажите переменные окружения:
 
    ```env
-   TG_TOKEN=ваш_токен_телеграм_бота
+   TG_TOKEN=полученный_токен_от_BotFather
+   DEVELOPER_CHAT_ID=ваш_chat_id
    ```
 
-4. Поместите в папку проекта файлы с cookies:
+6. Поместите в папку проекта файлы с cookies:
 
-   - **`browser.json`** — файл с заголовками браузера для работы с YouTube Music API. Инструкция по получению: [ytmusicapi — передача заголовков](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html)
-   - **`cookies-youtube-com.txt`** — файл с cookies для загрузки через yt-dlp. Инструкция по получению: [yt-dlp — cookies](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
-
-5. Запустите бота:
+   - `browser.json` — файл с заголовками браузера для работы с YouTube Music API. Инструкция по получению: [ytmusicapi — передача заголовков](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html)
+   - `cookies-youtube-com.txt` — файл с cookies для загрузки через yt-dlp. Инструкция по получению: [yt-dlp — cookies](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
+   
+7.   Очистите cookies от лишних доменов с помощью скрипта:
 
    ```bash
-   uv run python main.py
+   python scripts/clean_cookies.py cookies-youtube-com.txt
+   ```
+
+8. Скачайте и запустите `bgutil-ytdlp-pot-provider` (в отдельном терминале):
+
+   Вариант 1. Docker (рекомендуется):
+   
+   ```bash
+   docker run --name bgutil-provider -d -p 4416:4416 --init brainicism/bgutil-ytdlp-pot-provider
+   ```
+   
+   Вариант 2. Из исходников:
+   
+   ```bash
+   git clone --depth 1 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git /tmp/bgutil-provider
+   cd /tmp/bgutil-provider/server
+   npm ci
+   npx tsc
+   node build/main.js
+   ```
+   
+   По умолчанию сервис запустится на `http://127.0.0.1:4416`. Если вы запускаете его на другом адресе/порту — укажите его в `BGUTIL_PROVIDER_URL` в `.env`.
+
+9. Запустите бота:
+
+   ```bash
+   python main.py
    ```
 
 ### Запуск через Docker Compose
@@ -63,14 +123,14 @@ Telegram-бот для поиска и загрузки музыки из YouTub
 1. Создайте файл `.env.prod` с переменными окружения:
 
    ```env
-   TG_TOKEN=ваш_токен_телеграм_бота
+   TG_TOKEN=ваш_токен_от_BotFather
    BGUTIL_PROVIDER_URL=http://bgutil-provider:4416
    ```
 
 2. Поместите в папку проекта файлы с cookies:
 
-   - **`browser.json`** — файл с заголовками браузера для работы с YouTube Music API. Инструкция по получению: [ytmusicapi — передача заголовков](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html)
-   - **`cookies-youtube-com.txt`** — файл с cookies для загрузки через yt-dlp. Инструкция по получению: [yt-dlp — cookies](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
+   - `browser.json` — файл с заголовками браузера для работы с YouTube Music API. Инструкция по получению: [ytmusicapi — передача заголовков](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html)
+   - `cookies-youtube-com.txt` — файл с cookies для загрузки через yt-dlp. Инструкция по получению: [yt-dlp — cookies](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
 
 3. Запустите контейнеры:
 
