@@ -1,3 +1,4 @@
+import asyncio
 import random
 from dataclasses import dataclass
 from types import GeneratorType
@@ -100,6 +101,7 @@ async def download_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     context,
                     "WARN: stopped waiting for telegram respond to audio upload",
                 )
+                await asyncio.sleep(3)
 
     await download_album_message.delete()
 
