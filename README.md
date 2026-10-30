@@ -1,47 +1,49 @@
 # Jukebox
 
-Telegram-бот для поиска и загрузки музыки из YouTube и YouTube Music.
+Telegram bot for searching for and downloading music from YouTube and YouTube Music.
+
+[English](README.md) | [Русский](README.ru.md)
 
 [@jukebox_music_downloader_bot](https://t.me/jukebox_music_downloader_bot)
 
-## Возможности
+## Features
 
-- **Поиск треков** — поиск песен по названию с возможностью скачивания
-- **Поиск альбомов** — поиск альбомов с просмотром треков и скачиванием
-- **Поиск артистов** — поиск исполнителей с просмотром песен, альбомов и синглов
-- **Поиск видео** — поиск и скачивание аудио из видео с YouTube
-- **Тексты песен** — поиск и получение текстов песен
+- **Track search** — search for songs by title and download them
+- **Album search** — search for albums, view tracks, and download them
+- **Artist search** — search for artists and view their songs, albums, and singles
+- **Video search** — search for and download audio from YouTube videos
+- **Lyrics** — search for and retrieve song lyrics
 
-## Команды
+## Commands
 
-| Команда    | Описание                                    |
-| ---------- | ------------------------------------------- |
-| `/start`   | Приветствие и начало работы                 |
-| `/help`    | Справка по доступным командам               |
-| `/track`   | Поиск трека                                 |
-| `/album`   | Поиск альбома                               |
-| `/artist`  | Поиск артиста                               |
-| `/video`   | Поиск видео                                 |
-| `/lyrics`  | Поиск текста песни                          |
+| Command    | Description                                      |
+| ---------- | ------------------------------------------------ |
+| `/start`   | Greeting and getting started                     |
+| `/help`    | Help on available commands                       |
+| `/track`   | Search for a track                               |
+| `/album`   | Search for an album                              |
+| `/artist`  | Search for an artist                             |
+| `/video`   | Search for a video                               |
+| `/lyrics`  | Search for song lyrics                           |
 
-## Установка и запуск
+## Installation and running
 
-### Локальный запуск
+### Local run
 
-1. Cклонируйте репозиторий:
+1. Clone the repository:
 
    ```bash
    git clone https://github.com/ReshetnikovPavel/jukebox
    cd jukebox
    ```
 
-2. Установите зависимости:
+2. Install dependencies:
 
    - FFmpeg [ffmpeg.org](https://ffmpeg.org/download.html)
-   - Node.js [nodejs.org](https://nodejs.org/ru/download/).
-   - Deno [deno.com](https://docs.deno.com/runtime/getting_started/installation/).
+   - Node.js [nodejs.org](https://nodejs.org/ru/download/)
+   - Deno [deno.com](https://docs.deno.com/runtime/getting_started/installation/)
 
-3. Создайте виртуальное окружение и установите зависимости:
+3. Create a virtual environment and install dependencies:
 
    Linux, macOS
    ```bash
@@ -63,45 +65,45 @@ Telegram-бот для поиска и загрузки музыки из YouTub
    python -m pip install -e .
    ```
 
-4. Получите токен для Telegram-бота:
+4. Get a token for the Telegram bot:
 
-   1. Откройте [@BotFather](https://t.me/BotFather) в Telegram
-   2. Отправьте команду `/newbot`
-   3. Следуйте инструкциям: придумайте название бота и его `@username`
-   4. BotFather пришлёт вам токен вида `123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ` — сохраните его
+   1. Open [@BotFather](https://t.me/BotFather) in Telegram
+   2. Send the `/newbot` command
+   3. Follow the instructions: choose a name for the bot and its `@username`
+   4. BotFather will send you a token like `123456789:ABCDefGhIJKlmNoPQRsTUVwxyZ` — save it
 
-5. Получите свой Chat ID:
+5. Get your Chat ID:
 
-   Напишите боту [@userinfobot](https://t.me/userinfobot) — он пришлёт ваш ID
+   Message the [@userinfobot](https://t.me/userinfobot) bot — it will send you your ID
 
-6. Создайте файл `.env` и укажите переменные окружения:
+6. Create a `.env` file and specify the environment variables:
 
    ```env
-   TG_TOKEN=полученный_токен_от_BotFather
-   DEVELOPER_CHAT_ID=ваш_chat_id
+   TG_TOKEN=token_received_from_BotFather
+   DEVELOPER_CHAT_ID=your_chat_id
    ```
 
-6. Поместите в папку проекта файлы с cookies:
+7. Place the cookie files in the project folder:
 
-   - `browser.json` — файл с заголовками браузера для работы с YouTube Music API. Инструкция по получению: [ytmusicapi — передача заголовков](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html)
-   - `cookies-youtube-com.txt` — файл с cookies для загрузки через yt-dlp. Инструкция по получению: [yt-dlp — cookies](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
-   
-7.   Очистите cookies от лишних доменов с помощью скрипта:
+   - `browser.json` — a file with browser headers for working with the YouTube Music API. Instructions for obtaining it: [ytmusicapi — passing headers](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html)
+   - `cookies-youtube-com.txt` — a cookie file for downloading via yt-dlp. Instructions for obtaining it: [yt-dlp — cookies](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
+
+8. Clean the cookies of unnecessary domains using the script:
 
    ```bash
    python scripts/clean_cookies.py cookies-youtube-com.txt
    ```
 
-8. Скачайте и запустите `bgutil-ytdlp-pot-provider` (в отдельном терминале):
+9. Download and run `bgutil-ytdlp-pot-provider` (in a separate terminal):
 
-   Вариант 1. Docker (рекомендуется):
-   
+   Option 1. Docker (recommended):
+
    ```bash
    docker run --name bgutil-provider -d -p 4416:4416 --init brainicism/bgutil-ytdlp-pot-provider
    ```
-   
-   Вариант 2. Из исходников:
-   
+
+   Option 2. From source:
+
    ```bash
    git clone --depth 1 https://github.com/Brainicism/bgutil-ytdlp-pot-provider.git /tmp/bgutil-provider
    cd /tmp/bgutil-provider/server
@@ -109,41 +111,41 @@ Telegram-бот для поиска и загрузки музыки из YouTub
    npx tsc
    node build/main.js
    ```
-   
-   По умолчанию сервис запустится на `http://127.0.0.1:4416`. Если вы запускаете его на другом адресе/порту — укажите его в `BGUTIL_PROVIDER_URL` в `.env`.
 
-9. Запустите бота:
+   By default, the service will start at `http://127.0.0.1:4416`. If you run it on a different address/port, specify it in `BGUTIL_PROVIDER_URL` in `.env`.
+
+10. Start the bot:
 
    ```bash
    python main.py
    ```
 
-### Запуск через Docker Compose
+### Running with Docker Compose
 
-1. Создайте файл `.env.prod` с переменными окружения:
+1. Create a `.env.prod` file with the environment variables:
 
    ```env
-   TG_TOKEN=ваш_токен_от_BotFather
+   TG_TOKEN=your_token_from_BotFather
    BGUTIL_PROVIDER_URL=http://bgutil-provider:4416
    ```
 
-2. Поместите в папку проекта файлы с cookies:
+2. Place the cookie files in the project folder:
 
-   - `browser.json` — файл с заголовками браузера для работы с YouTube Music API. Инструкция по получению: [ytmusicapi — передача заголовков](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html)
-   - `cookies-youtube-com.txt` — файл с cookies для загрузки через yt-dlp. Инструкция по получению: [yt-dlp — cookies](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
+   - `browser.json` — a file with browser headers for working with the YouTube Music API. Instructions for obtaining it: [ytmusicapi — passing headers](https://ytmusicapi.readthedocs.io/en/stable/setup/browser.html)
+   - `cookies-youtube-com.txt` — a cookie file for downloading via yt-dlp. Instructions for obtaining it: [yt-dlp — cookies](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp)
 
-3. Запустите контейнеры:
+3. Start the containers:
 
    ```bash
    docker compose up -d
    ```
 
-## Переменные окружения
+## Environment variables
 
-| Переменная             | Описание                                                | Обязательная |
-| ---------------------- | ------------------------------------------------------- | ------------ |
-| `TG_TOKEN`             | Токен Telegram-бота                                     | ✅           |
-| `BGUTIL_PROVIDER_URL`  | URL сервиса bgutil-ytdlp-pot-provider                   | ❌           |
-| `DEVELOPER_CHAT_ID`    | Chat ID разработчика для уведомлений                    | ❌           |
-| `MIGRATION`            | Включить команду миграции (`true`/`false`)              | ❌           |
-| `SQLITE_PATH`          | Путь к файлу SQLite-базы (в Docker: `/data/jukebox.db`) | ❌           |
+| Variable               | Description                                                | Required |
+| ---------------------- | ---------------------------------------------------------- | -------- |
+| `TG_TOKEN`             | Telegram bot token                                         | ✅       |
+| `BGUTIL_PROVIDER_URL`  | URL of the `bgutil-ytdlp-pot-provider` service             | ❌       |
+| `DEVELOPER_CHAT_ID`    | Developer Chat ID for notifications                        | ❌       |
+| `MIGRATION`            | Enable the migration command (`true`/`false`)              | ❌       |
+| `SQLITE_PATH`          | Path to the SQLite database file (in Docker: `/data/jukebox.db`) | ❌       |
